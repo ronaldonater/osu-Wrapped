@@ -7,6 +7,32 @@ async function osu(path,token){const res=await fetch(`https://osu.ppy.sh/api/v2$
 export async function handler(event){
  try{
  const path=event.path.replace(/^\/.netlify\/functions\/api/,'/api');const jar=cookies(event);
+ if(path==='/api/cover'){
+  if(event.httpMethod!=='GET')return json(405,{error:'Method not allowed'});
+  let url;try{url=new URL(event.queryStringParameters?.url);}catch{return json(400,{error:'Invalid cover URL'});}
+  if(url.origin!=='https://assets.ppy.sh' || url.username || url.password || !/^\/beatmaps\/\d+\/covers\/cover(?:@2x)?\.(?:jpg|jpeg|png)$/.test(url.pathname))return json(400,{error:'Invalid cover URL'});
+  // Profile cover URLs can include cache-version query parameters. Fetch only the validated image path.
+  url.search='';url.hash='';
+  const response=await fetch(url.href,{redirect:'error',signal:AbortSignal.timeout(10000)});
+  if(!response.ok)return json(502,{error:'Cover unavailable'});
+  const type=(response.headers.get('content-type')||'').split(';')[0].trim().toLowerCase();
+  if(!['image/jpeg','image/png','image/webp'].includes(type))return json(502,{error:'Unsupported cover image'});
+  const bytes=Buffer.from(await response.arrayBuffer());
+  if(bytes.length>2*1024*1024)return json(502,{error:'Cover too large'});
+  return {statusCode:200,headers:{'Content-Type':type,'Cache-Control':'public, max-age=86400','X-Content-Type-Options':'nosniff'},body:bytes.toString('base64'),isBase64Encoded:true};
+ }
+ if(path==='/api/avatar'){
+  if(event.httpMethod!=='GET')return json(405,{error:'Method not allowed'});
+  const id=event.queryStringParameters?.id;
+  if(!/^[1-9]\d{0,14}$/.test(id||'') || !Number.isSafeInteger(Number(id)))return json(400,{error:'Invalid user ID'});
+  const response=await fetch('https://a.ppy.sh/'+id,{signal:AbortSignal.timeout(10000)});
+  if(!response.ok)return json(502,{error:'Avatar unavailable'});
+  const type=(response.headers.get('content-type')||'').split(';')[0].trim().toLowerCase();
+  if(!['image/png','image/jpeg','image/webp','image/gif','image/avif'].includes(type))return json(502,{error:'Unsupported avatar image'});
+  const bytes=Buffer.from(await response.arrayBuffer());
+  if(bytes.length>2*1024*1024)return json(502,{error:'Avatar too large'});
+  return {statusCode:200,headers:{'Content-Type':type,'Cache-Control':'public, max-age=3600','X-Content-Type-Options':'nosniff'},body:bytes.toString('base64'),isBase64Encoded:true};
+ }
  if(path==='/api/auth/login'){
   if(!process.env.OSU_CLIENT_ID||!process.env.OSU_CLIENT_SECRET||!process.env.OSU_REDIRECT_URI)return json(503,{error:'Login is not configured yet. Add the osu! OAuth environment variables in Netlify. You can explore the demo now.'});
   const state=randomBytes(24).toString('hex');const url=new URL('https://osu.ppy.sh/oauth/authorize');url.search=new URLSearchParams({client_id:process.env.OSU_CLIENT_ID,redirect_uri:process.env.OSU_REDIRECT_URI,response_type:'code',scope:'identify public',state}).toString();
@@ -30,8 +56,9 @@ export async function handler(event){
   const session=unseal(jar.ow_session||'');if(!session)return json(401,{error:'Sign in with osu! to generate your Wrapped.'});
   const mode=event.queryStringParameters?.mode||'osu';if(!['osu','taiko','fruits','mania'].includes(mode))return json(400,{error:'Invalid game mode'});
   const user=await osu(`/me/${mode}`,session.token);
-  const [best,recent]=await Promise.all([osu(`/users/${user.id}/scores/best?mode=${mode}&limit=100&legacy_only=0`,session.token),osu(`/users/${user.id}/scores/recent?mode=${mode}&limit=100&include_fails=1&legacy_only=0`,session.token)]);
-  return json(200,summarize(user,best,recent,mode));
+  const pages=await Promise.all(Array.from({length:2},(_,page)=>osu(`/users/${user.id}/scores/best?mode=${mode}&limit=100&offset=${page*100}&legacy_only=0`,session.token)));
+  const best=pages.flat();
+  return json(200,summarize(user,best,mode));
  }
  return json(404,{error:'Not found'});
  }catch(error){console.error('Wrapped request failed:',error.name);return json(error.status||500,{error:error.status?error.message:'Could not generate your Wrapped. Check deployment configuration or try again shortly.'});}

@@ -1,12 +1,12 @@
 export const YEAR = 2026;
 export const inYear = value => typeof value === 'string' && new Date(value).getUTCFullYear() === YEAR;
-export function summarize(user, best, recent, mode) {
+export function summarize(user, best, mode) {
   const months = Array.from({length:12}, (_,i) => ({month:i,count:0,available:false}));
   for (const row of user.monthly_playcounts || []) if(inYear(row.start_date)) {
     const m = new Date(row.start_date).getUTCMonth(); months[m].count += row.count; months[m].available = true;
   }
   const unique = new Map();
-  for(const score of [...best, ...recent]) if(inYear(score.ended_at || score.created_at)) unique.set(String(score.id),score);
+  for(const score of best) if(inYear(score.ended_at || score.created_at)) unique.set(String(score.id),score);
   const scores = [...unique.values()];
   const passed = scores.filter(s=>s.passed !== false);
   const top = passed.filter(s=>Number.isFinite(s.pp)).sort((a,b)=>b.pp-a.pp).slice(0,25);
@@ -19,7 +19,18 @@ export function summarize(user, best, recent, mode) {
     medals:Array.isArray(user.user_achievements)?user.user_achievements.filter(a=>inYear(a.achieved_at)).length:null,
     accuracy:passed.length?passed.reduce((s,p)=>s+p.accuracy*100,0)/passed.length:null,
     combo:passed.length?Math.max(...passed.map(s=>s.max_combo||0)):null,
-    top:top.map(s=>({id:s.id,beatmapId:s.beatmap?.id,title:s.beatmapset?.title||'Unknown beatmap',artist:s.beatmapset?.artist||'Unknown artist',creator:s.beatmapset?.creator||'Unknown mapper',version:s.beatmap?.version||'',pp:s.pp,accuracy:s.accuracy*100,combo:s.max_combo,rank:s.rank,date:s.ended_at||s.created_at,mods:(s.mods||[]).map(m=>typeof m==='string'?m:m.acronym).join('')||'NM',cover:s.beatmapset?.covers?.['cover@2x']})),
-    mappers:group('creator'),artists:group('artist'),sampleCount:scores.length,passedCount:passed.length,
-    coverage:'Score statistics use deduplicated 2026 scores returned by current best and recent endpoints. This is a partial sample, not your complete year. Mapper credits use the beatmapset creator; guest difficulty creators may differ. Counts are observed scores, not all map attempts.'};
+    top:top.map(s=>({id:s.id,beatmapId:s.beatmap?.id,title:s.beatmapset?.title||'Unknown beatmap',artist:s.beatmapset?.artist||'Unknown artist',creator:s.beatmapset?.creator||'Unknown mapper',version:s.beatmap?.version||'',pp:s.pp,accuracy:s.accuracy*100,combo:s.max_combo,rank:s.rank,date:s.ended_at||s.created_at,mods:formatMods(s.mods),cover:s.beatmapset?.covers?.['cover@2x']})),
+    mappers:group('creator').map(mapper=>({...mapper,userId:scores.find(s=>s.beatmapset?.creator===mapper.name && Number.isSafeInteger(s.beatmapset?.user_id) && s.beatmapset.user_id>0)?.beatmapset.user_id ?? null})),artists:group('artist'),sampleCount:scores.length,passedCount:passed.length,
+    coverage:'All score statistics and mapper/artist rankings use only deduplicated 2026 scores found in your current top 200 best plays. This is a partial sample, not your complete year. Mapper credits use the beatmapset creator; guest difficulty creators may differ. Counts are observed scores, not all map attempts.'};
+}
+
+export function formatMods(mods = []) {
+  const names = (mods || []).map(mod => typeof mod === 'string' ? mod : mod.acronym);
+  const hd = names.indexOf('HD');
+  const hr = names.indexOf('HR');
+  if (hd > -1 && hr > -1 && hd > hr) {
+    names.splice(hd, 1);
+    names.splice(hr, 0, 'HD');
+  }
+  return names.join(', ') || 'NM';
 }
