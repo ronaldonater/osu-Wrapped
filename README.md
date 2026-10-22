@@ -41,3 +41,11 @@ Year boundaries use UTC. Before January 1, 2027, results represent 2026 year to 
 
 You must supply your own osu! OAuth credentials and deployed domain to exercise a real login. These cannot be bundled in source. Test that flow on your actual Netlify site before announcing it. Profile history availability is controlled by osu!. This project is independent and is not affiliated with ppy/osu!.
 
+
+## Security review
+
+See [security findings, fixes, and remaining deployment checks](docs/SECURITY-REVIEW.md). API entrypoints now use the Netlify Fetch API; the shared handler is in netlify/functions/lib/api-handler.mjs. Re-authenticate after deploying the purpose-tagged session changes.
+
+## Local runner compatibility
+
+`npm run dev:netlify` now runs `scripts/dev.mjs`: Vite plus the actual Fetch API function at http://localhost:8888, loading the root .env. This bypasses a Netlify CLI 27.14.1 proxy crash on normal GET requests without Content-Type. Stop other servers on port 8888 first. OAuth uses the same localhost callback as before. This runner does not emulate Netlify edge headers or distributed rate limits; those require deployment checks. Production deployment still uses netlify.toml and the same hardened Netlify functions.
