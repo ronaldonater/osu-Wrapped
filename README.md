@@ -49,3 +49,11 @@ See [security findings, fixes, and remaining deployment checks](docs/SECURITY-RE
 ## Local runner compatibility
 
 `npm run dev:netlify` now runs `scripts/dev.mjs`: Vite plus the actual Fetch API function at http://localhost:8888, loading the root .env. This bypasses a Netlify CLI 27.14.1 proxy crash on normal GET requests without Content-Type. Stop other servers on port 8888 first. OAuth uses the same localhost callback as before. This runner does not emulate Netlify edge headers or distributed rate limits; those require deployment checks. Production deployment still uses netlify.toml and the same hardened Netlify functions.
+
+## Embedded replay viewer
+
+Top-score Watch replay buttons open a sandboxed ReplayViewer panel. The backend authorizes the current player and verifies score ownership before downloading a replay; only the replay bytes are passed to https://www.replayviewer.com/?embed using its replayviewer:load interface. No osu! token is sent to that site. Downloads are bounded to 4 MiB and use no-store; image downloads remain bounded to 2 MiB. The CSP allows only that viewer as a frame source. Closing the panel aborts pending downloads and removes its message listener/frame. Missing replays and upstream download quotas may prevent playback. ReplayViewer currently lists no lazer-mod support. Full third-party playback requires live verification; this repository does not control that service. No OAuth client change or additional environment variable is required.
+
+## Wrapped experience
+
+Successful first-login data loading opens a nine-slide animated story. Seen state is localStorage keyed by player ID and year, so changing game mode does not replay it automatically. The Replay Experience button opens it anytime, including in the demo. Closing/skipping counts as seen; different browsers/devices or cleared storage may show it again. If storage is blocked, seen state lasts only for the current page. This is an animated web experience, not an exported video, and uses no autoplay audio. Controls support pause/play, previous/next, slide selection, swipe and Escape. Reduced-motion starts paused and disables entrance/counting animations. Hiding the browser tab pauses progress. No OAuth or environment-variable change is required.
