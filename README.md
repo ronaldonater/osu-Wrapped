@@ -1,59 +1,125 @@
 # osu! wrapped 2026
 
-A complete Netlify-ready fan app: osu! OAuth, four rulesets, responsive dashboard, monthly activity chart, score rankings, mapper/artist rankings, PNG recap and JSON export. Demo runs without credentials. No database required. No passwords or OAuth secrets reach browser JavaScript.
+A Netlify-ready fan app that turns an osu! profile into a 2026 review, an interactive slideshow, and a downloadable recap card. Supports osu!, osu!taiko, osu!catch, and osu!mania. The demo works without OAuth credentials. No database is required.
 
-## Run
+## Features
 
-Use Node 22 or newer. Run `npm install`, then `npm run dev` for the frontend/demo at http://localhost:5173. For working OAuth and API routes, copy `.env.example` to `.env`, configure the values below, and run `npm run dev:netlify` at http://localhost:8888. Register that exact local callback separately for local testing. `npm test` runs aggregation and session-security tests; `npm run build` creates `dist`.
+- Responsive stats dashboard with monthly activity, average accuracy and its letter grade, highest combo, medals unlocked, and replay views.
+- Favorite Mod with official colored SVG icons, score counts, and tie handling. Individual mods are counted separately, CL is excluded, and CL-only or unmodded scores count as No Mod.
+- Top 25 selected PP scores with artwork, grades, dates, mapper credits, exact PP tooltips, score links, and replay viewing where available.
+- Top mapper and artist rankings with profile pictures where available. Artist pictures use TheAudioDB, with initials when no exact match exists.
+- Rarest medal earned in 2026, including artwork, award date, and a current Osekai rarity estimate.
+- An interactive story with music, song previews, animated intro and finale, mapper/artist guessing games, and sound effects.
+- PNG recap export, JSON export, recap preview, and a share panel with Twitter/X and Bluesky links, an editable message, image/message copying, downloads, and native file sharing where supported.
+
+The initial mode follows the user's preferred mode on osu!. Users can switch modes manually.
+
+## Run locally
+
+Use Node.js 22 or newer.
+
+~~~sh
+npm install
+npm run dev
+~~~
+
+This starts the frontend and demo at http://localhost:5173. OAuth and backend routes require the full local runner:
+
+1. Copy .env.example to .env.
+2. Create an osu! OAuth application in [osu! account settings](https://osu.ppy.sh/home/account/edit).
+3. Register http://localhost:8888/api/auth/callback as its callback.
+4. Set OSU_CLIENT_ID, OSU_CLIENT_SECRET, OSU_REDIRECT_URI, and SESSION_SECRET in .env. The redirect URI must exactly match the registered callback.
+5. Run npm run dev:netlify and open http://localhost:8888.
+
+Generate a session secret with:
+
+~~~sh
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+~~~
+
+Keep .env private and never prefix backend secrets with VITE_. Restart the local runner after changing backend modules or environment variables. Frontend edits reload through Vite.
+
+The local runner uses scripts/dev.mjs to serve Vite and the actual Fetch API function. It bypasses a Netlify CLI proxy compatibility issue, but does not emulate deployed security headers or distributed rate limits.
 
 ## Deploy to Netlify
 
-1. Push this directory to your Git provider and import the repository in Netlify. The included `netlify.toml` sets build, functions, routing, Node version and security headers. Do not deploy only `dist` by drag and drop: the OAuth backend needs Netlify Functions.
-2. On https://osu.ppy.sh/home/account/edit, create an OAuth application. Register `https://YOUR-SITE.netlify.app/api/auth/callback` as its callback (use your custom domain if applicable).
-3. Add `OSU_CLIENT_ID`, `OSU_CLIENT_SECRET`, `OSU_REDIRECT_URI`, and `SESSION_SECRET` to Netlify environment variables, available to Functions. `OSU_REDIRECT_URI` must match the registered URL exactly. Generate a secret with `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`. Never prefix these variables with `VITE_`.
-4. Deploy/redeploy after configuring variables. Open the site and click Get my Wrapped. Verify official osu! authorization redirects back to your site, mode switching, export, and sign out.
+1. Import this repository in Netlify. The included netlify.toml defines the build, functions, redirects, and security headers.
+2. Register https://YOUR-DOMAIN/api/auth/callback in your osu! OAuth client.
+3. Set OSU_CLIENT_ID, OSU_CLIENT_SECRET, OSU_REDIRECT_URI, and SESSION_SECRET in Netlify, available to Functions.
+4. Deploy or redeploy, then verify sign-in, mode switching, exports, and sign-out on your actual domain.
 
-The app requests `identify public` permissions. Sessions use AES-256-GCM authenticated encryption in HttpOnly, SameSite=Lax cookies (Secure on HTTPS), OAuth state verification and an expiry bounded by the provider access-token lifetime or 24 hours. It intentionally stores no refresh token; users sign in again on expiry. Sign out clears the local session; connected-app access can also be revoked in osu! account settings. Tokens and raw API responses are not logged. Results are not persisted server-side. Exported PNG/JSON files are user-controlled. The API fetches only the authenticated user's data and has bounded requests and timeouts. No paid services are required beyond hosting terms.
+Deploy the full project, rather than uploading only dist: OAuth and image/replay routes require Netlify Functions. TheAudioDB and Osekai integrations need no additional environment variables.
 
-## What the API can actually tell us
+The personal website integration uses /osu-wrapped/ and /api/osu-wrapped/, with WRAPPED_OSU_CLIENT_ID, WRAPPED_OSU_CLIENT_SECRET, WRAPPED_OSU_REDIRECT_URI, and WRAPPED_SESSION_SECRET. Its production callback is https://ronaldonater.com/api/osu-wrapped/auth/callback. See the website repository's docs/OSU-WRAPPED-SETUP.md for that deployment.
 
-Official reference: https://osu.ppy.sh/docs/index.html (Get Own Data, Get User Scores, User).
+## Data scope
 
-| Requested feature | Implemented interpretation |
+Each review requests up to 200 current best scores for the selected mode, using two pages of 100, then filters and deduplicates scores dated in 2026. Recent scores are not fetched. This is a sample of current best scores, not a complete historical archive of the user's year.
+
+| Stat | Calculation |
 | --- | --- |
-| Yearly playcount | Sum of returned 2026 monthly profile counts, across modes. Missing history is explicitly disclosed. |
-| Yearly accuracy | Unweighted mean of passed scores in the available 2026 sample. **Not** lifetime profile accuracy or a complete annual average. |
-| Highest combo | Highest combo in sampled passed 2026 scores. |
-| Highest PP / top 25 | 2026 scores in the current top 200 best plays sorted by PP, up to 25; recent scores are excluded; not guaranteed the true historical annual top 25. |
-| Medals | Profile achievements with a 2026 achieved_at timestamp, across modes. |
-| Replays watched | Sum of returned 2026 monthly replay-watch counts, across modes. |
-| Favorite mappers / artists | Top 10 by deduplicated scores in the current top 200 best plays from 2026, not true annual playcounts. Mapper uses mapset creator, which may differ from guest difficulty creator. |
+| Plays | Sum of available 2026 monthly profile counts, across modes. |
+| Average accuracy | Unweighted average of passed scores in the selected 2026 sample. |
+| Accuracy grade | SS: 100%; S: 95% to below 100%; A: 90% to below 95%; B: 85% to below 90%; C: 70% to below 85%; D: below 70%. Calculated from the unrounded average. |
+| Highest combo | Maximum combo among sampled passed 2026 scores, linked to its source score. |
+| Top PP plays | Up to 25 passed scores sorted by PP from the selected 2026 sample. |
+| Favorite Mod | Most common individual mod in the deduplicated 2026 sample. Each mod counts once per score; ties are shown. CL is excluded. |
+| Mappers and artists | Top 10 by score count in the selected sample. Mapper credits use the mapset creator and may differ from the guest difficulty's creator. |
+| Medals unlocked | Profile achievements with a 2026 award timestamp, across modes. |
+| Rarest medal | Lowest available Osekai ownership percentage among medals earned in 2026. Incomplete matches are labeled accordingly. |
+| Replay views | Sum of available 2026 monthly replay-watch counts, across modes. |
 
-Each review scans up to 200 current best scores for the selected mode using two pages of 100 (offsets 0 and 100), then keeps only 2026 scores. This single source supplies accuracy, combo, PP rankings, and mapper/artist rankings. Recent scores are never fetched or included. Current best scores can displace earlier records. The API does not expose a complete annual per-user attempt ledger through these endpoints. A zero from a returned monthly array means no counted activity in the returned history, not proof of complete archival coverage. Missing fields show unavailable rather than fabricated numbers. No lifetime most-played counts are relabeled as yearly data. An exact full annual review would require an authorized complete historical source or a tracker running throughout the year; even periodic recent-score polling can miss attempts. The app deliberately does not claim that capability.
+Year boundaries use UTC. Before January 1, 2027, this is a year-to-date review. Missing data is shown as unavailable. Demo scores and counts are fictional. Current best scores can displace earlier plays, and profile history may be incomplete.
 
-Year boundaries use UTC. Before January 1, 2027, results represent 2026 year to date. Example data is prominently marked fictional. The demo has no external image/font dependency. Charts, artwork, and recap are generated locally.
+## Slideshow and audio
 
-## Structure
+First successful sign-in automatically opens the story once per player and year in that browser. Replay Experience opens it again anytime. Seen state is stored in localStorage; another browser, cleared storage, or blocked storage can cause it to appear again.
 
-`src/main.js`: UI and export; `src/summary.js`: shared aggregation; `src/demo.js`: fictional sample; `src/style.css`: responsive design; `netlify/functions/api.mjs`: OAuth and osu! API; `netlify/functions/lib/security.mjs`: encrypted sessions; `tests`: automated checks.
+The full story includes 11 slides when both quizzes have enough candidates. Controls support pause/play, mute, previous/next, slide selection, swipe, and Escape. Reduced-motion starts paused and skips the animated opening sequences. Mobile uses lighter effects; desktop keeps the full animation treatment.
 
-## Live verification still required
+The opening uses cYsmix - Triangles and the finale uses nekodex - circles!. The top-play and artist slides use looping osu! beatmap previews where available. Quiz/mapper slides use an original ambient loop. Audio fades between sections and follows pause, visibility, and mute controls. Browsers may require pressing Play before allowing audio.
 
-You must supply your own osu! OAuth credentials and deployed domain to exercise a real login. These cannot be bundled in source. Test that flow on your actual Netlify site before announcing it. Profile history availability is controlled by osu!. This project is independent and is not affiliated with ppy/osu!.
+Saving a recap keeps the slideshow open. Opening its share panel pauses playback and resumes it on close only if the panel caused that pause. Close, Done, and Escape use the closing sound and fade.
 
+## Sharing and replay viewing
 
-## Security review
+Twitter/X and Bluesky share links prefill the message, including the app link, but do not automatically attach the card. Users can copy the PNG, download it, or use the device share sheet where supported. Clipboard and native sharing depend on browser permissions and support.
 
-See [security findings, fixes, and remaining deployment checks](docs/SECURITY-REVIEW.md). API entrypoints now use the Netlify Fetch API; the shared handler is in netlify/functions/lib/api-handler.mjs. Re-authenticate after deploying the purpose-tagged session changes.
+Watch replay opens a sandboxed [ReplayViewer](https://www.replayviewer.com/) panel. The backend verifies the signed-in user's score ownership before downloading a replay. Only replay bytes are sent to the viewer; the osu! token is not. Replays are not permanently stored, downloads are limited to 4 MiB, and closing the panel aborts pending requests. Missing replays, upstream quotas, and viewer mod support can limit playback.
 
-## Local runner compatibility
+## External artwork and rarity
 
-`npm run dev:netlify` now runs `scripts/dev.mjs`: Vite plus the actual Fetch API function at http://localhost:8888, loading the root .env. This bypasses a Netlify CLI 27.14.1 proxy crash on normal GET requests without Content-Type. Stop other servers on port 8888 first. OAuth uses the same localhost callback as before. This runner does not emulate Netlify edge headers or distributed rate limits; those require deployment checks. Production deployment still uses netlify.toml and the same hardened Netlify functions.
+- [TheAudioDB](https://www.theaudiodb.com/free_music_api): exact-name artist lookups using its shared free key. Results use bounded image downloads, browser/CDN caching, and a small warm-instance cache. Free API limits and missing artwork can result in initials. The local request guard is per function instance, not a global traffic guarantee. See [artist image notes](docs/ARTIST-IMAGES.md).
+- [Osekai](https://osekai.net/): medal metadata and current rarity estimates, cached for 24 hours per warm instance. These are estimates from Osekai's tracked population, not official global statistics or rarity at award time. See [medal rarity notes](docs/MEDAL-RARITY.md).
+- Official osu! mod SVGs are bundled locally with category colors. Source and upstream licence are included in public/images/mods/.
 
-## Embedded replay viewer
+Artwork and data attribution are included in the UI and exported card. External images/previews require network access; demo data itself does not require OAuth.
 
-Top-score Watch replay buttons open a sandboxed ReplayViewer panel. The backend authorizes the current player and verifies score ownership before downloading a replay; only the replay bytes are passed to https://www.replayviewer.com/?embed using its replayviewer:load interface. No osu! token is sent to that site. Downloads are bounded to 4 MiB and use no-store; image downloads remain bounded to 2 MiB. The CSP allows only that viewer as a frame source. Closing the panel aborts pending downloads and removes its message listener/frame. Missing replays and upstream download quotas may prevent playback. ReplayViewer currently lists no lazer-mod support. Full third-party playback requires live verification; this repository does not control that service. No OAuth client change or additional environment variable is required.
+## Checks and source layout
 
-## Wrapped experience
+~~~sh
+npm test
+npm run build
+~~~
 
-Successful first-login data loading opens a nine-slide animated story. Seen state is localStorage keyed by player ID and year, so changing game mode does not replay it automatically. The Replay Experience button opens it anytime, including in the demo. Closing/skipping counts as seen; different browsers/devices or cleared storage may show it again. If storage is blocked, seen state lasts only for the current page. This is an animated web experience, not an exported video, and uses no autoplay audio. Controls support pause/play, previous/next, slide selection, swipe and Escape. Reduced-motion starts paused and disables entrance/counting animations. Hiding the browser tab pauses progress. No OAuth or environment-variable change is required.
+The build outputs dist. Tests cover aggregation, preferred modes, mod counts, medal selection, artwork validation and caching, replay authorization, OAuth, and session security.
+
+| Path | Purpose |
+| --- | --- |
+| src/main.js, src/style.css | Dashboard and responsive UI |
+| src/summary.js, src/mods.js, src/accuracy.js | Score aggregation and stat calculations |
+| src/experience.js | Interactive story and audio |
+| src/recap.js, src/share.js | PNG generation and sharing |
+| src/replay.js | Embedded replay viewer |
+| src/medals.js, src/mod-icons.js | Medal display and local mod artwork |
+| netlify/functions/api.mjs | Netlify Fetch API entrypoint |
+| netlify/functions/lib/ | OAuth, security, artwork, and rarity services |
+| tests/ | Automated regression checks |
+
+## Security and verification
+
+OAuth requests identify public. Sessions are encrypted with AES-256-GCM and stored in HttpOnly, SameSite=Lax cookies, with Secure on HTTPS. No refresh token is stored; sign in again when the session expires. Private OAuth credentials stay on the backend. Signing out clears the session; access can also be revoked in osu! account settings.
+
+No database stores user reviews or replay files. Third-party artist and rarity data is cached as described above. Exported files are controlled by the user. Verify real OAuth, browser audio, sharing, and replay playback on the deployed site before release. See the [security review](docs/SECURITY-REVIEW.md) for remaining deployment checks.
+
+Independent fan project. Not affiliated with ppy or osu!. [osu! API documentation](https://osu.ppy.sh/docs/).
