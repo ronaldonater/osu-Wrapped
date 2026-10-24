@@ -39,3 +39,22 @@ Deleting an account's record can be handled by the site operator: calculate the 
 - Database failure: the review still loads, with community stats unavailable.
 
 No live Neon project was created or configured by this code change. The SQL and private environment variables above must be configured before live persistence works.
+
+## Current SQL files
+
+Use `scripts/sql/club-community.sql` for a fresh database, or `scripts/sql/club-community-v4.sql` to update any existing v1/v2/v3 schema directly. The v4 migration permits all 16 club IDs without deleting participant records. Superseded v2/v3 SQL files have been removed; they are not prerequisites. Current assignment rules are `2026-v5`, which require no further schema change.
+
+## Current map-preference rules and schema
+
+All score-based clubs use the complete deduplicated sample of eligible 2026 scores from the user's current top 200, including scores without PP. Precision Society and Close Enough Club use valid passed scores within that sample. Quality Over Quantity and Repeat Offenders use available monthly profile playcounts across all modes.
+
+Time Capsule requires at least 60% of the sample on mapsets ranked in **2016 or earlier**. Class of 2026 requires at least 60% on mapsets ranked in **2026**. Crowd Favorites requires at least 40% on the selected mode's **25 most-played mapsets ranked in 2026**, spanning at least three distinct mapsets. Each requires at least five eligible scores. The popular top 25 is the comparison catalogue, not a limit on the user's score sample.
+
+Missing map ranking dates are not counted as old/new matches. The backend attempts date enrichment across up to 200 scores, with four concurrent lookups and a shared three-second budget; successfully fetched dates cache for 24 hours per warm instance. Popular catalogue requests coalesce and cache for 15 minutes. Metadata failures do not block the review.
+
+Only two SQL files are needed:
+
+- `scripts/sql/club-community.sql`: create a fresh database table.
+- `scripts/sql/club-community-v4.sql`: update any existing earlier schema directly, preserving participant records. Superseded v2/v3 migration files were removed.
+
+Current assignment rules are **`2026-v5`**. The SQL schema migration is still **v4**; no new SQL is needed if it has already been applied. Percentages include participants under the current rules as they generate a fresh review. Keep the database URL and tracking secret unchanged. The private environment variables and deployment steps are documented above.

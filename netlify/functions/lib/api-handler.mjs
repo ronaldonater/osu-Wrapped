@@ -1,3 +1,4 @@
+import {enrichMapDates} from './map-clubs.mjs';
 import {recordClubCommunity} from './club-community.mjs';
 import {globalStats} from './global-stats.mjs';
 import {rarestMedal} from './medals.mjs';
@@ -98,7 +99,8 @@ export async function handler(event){
   const mode=requestedMode||(validModes.includes(user.playmode)?user.playmode:'osu');
   const pages=await Promise.all(Array.from({length:2},(_,page)=>osu(`/users/${user.id}/scores/best?mode=${mode}&limit=100&offset=${page*100}&legacy_only=0`,session.token)));
   const best=pages.flat();
-  const summary=summarize(user,best,mode);
+  const [enriched,popularBeatmapsets]=await Promise.all([enrichMapDates(best,session.token),globalStats.popularBeatmapsets(mode,{clientId:process.env.OSU_CLIENT_ID,clientSecret:process.env.OSU_CLIENT_SECRET})]);
+  const summary=summarize(user,enriched,mode,{popularBeatmapsets});
   const [medal,clubCommunity]=await Promise.all([rarestMedal(user.user_achievements),recordClubCommunity(summary,{databaseUrl:process.env.DATABASE_URL,trackingSecret:process.env.CLUB_TRACKING_SECRET})]);
   return json(200,{...summary,...medal,...(clubCommunity?{clubCommunity}:{})});
  }
