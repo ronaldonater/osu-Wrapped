@@ -1,6 +1,5 @@
 import http from 'node:http';
 import {createServer as createViteServer} from 'vite';
-import api from '../netlify/functions/api.mjs';
 try{process.loadEnvFile();}catch(error){if(error.code!=='ENOENT')throw error;}
 const port=Number(process.env.PORT || 8888);
 const server=http.createServer(async(req,res)=>{
@@ -8,6 +7,7 @@ const server=http.createServer(async(req,res)=>{
   const url=new URL(req.url,'http://localhost:'+port);
   if(url.pathname.startsWith('/api/') || url.pathname.startsWith('/.netlify/functions/api/')){
    const request=new Request(url,{method:req.method,headers:req.headers});
+   const {default:api}=await vite.ssrLoadModule('/netlify/functions/api.mjs');
    const response=await api(request);
    for(const [name,value] of response.headers)if(name!=='set-cookie')res.setHeader(name,value);
    const cookies=response.headers.getSetCookie();if(cookies.length)res.setHeader('Set-Cookie',cookies);

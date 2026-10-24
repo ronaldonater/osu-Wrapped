@@ -75,7 +75,7 @@ Year boundaries use UTC. Before January 1, 2027, this is a year-to-date review. 
 
 First successful sign-in automatically opens the story once per player and year in that browser. Replay Experience opens it again anytime. Seen state is stored in localStorage; another browser, cleared storage, or blocked storage can cause it to appear again.
 
-The full story includes 11 slides when both quizzes have enough candidates. Controls support pause/play, mute, previous/next, slide selection, swipe, and Escape. Reduced-motion starts paused and skips the animated opening sequences. Mobile uses lighter effects; desktop keeps the full animation treatment.
+The full story includes 13 slides when both quizzes have enough candidates. Controls support pause/play, mute, previous/next, slide selection, swipe, and Escape. Reduced-motion starts paused and skips the animated opening sequences. Mobile uses lighter effects; desktop keeps the full animation treatment.
 
 The opening uses cYsmix - Triangles and the finale uses nekodex - circles!. The top-play and artist slides use looping osu! beatmap previews where available. Quiz/mapper slides use an original ambient loop. Audio fades between sections and follows pause, visibility, and mute controls. Browsers may require pressing Play before allowing audio.
 
@@ -123,3 +123,26 @@ OAuth requests identify public. Sessions are encrypted with AES-256-GCM and stor
 No database stores user reviews or replay files. Third-party artist and rarity data is cached as described above. Exported files are controlled by the user. Verify real OAuth, browser audio, sharing, and replay playback on the deployed site before release. See the [security review](docs/SECURITY-REVIEW.md) for remaining deployment checks.
 
 Independent fan project. Not affiliated with ppy or osu!. [osu! API documentation](https://osu.ppy.sh/docs/).
+
+
+## Global stats
+
+A sliding Your Stats / Global Stats selector switches the dashboard scope while preserving the selected ruleset. The slideshow adds an animated global introduction and a top-five recorded-play slide after personal rankings and before the finale. Full stories now contain 13 slides when both quizzes are available.
+
+The global endpoint reads the official osu! top plays rankings, including player names, beatmap details, mods, PP, and direct score IDs. It scans up to ten pages (1,000 plays) until it finds 25 unique eligible 2026 plays, and caches results for 15 minutes per warm instance. No additional credentials or user permissions are required. Failed global requests preserve personal stats and may return previously cached global data with a stale-data notice.
+
+This leaderboard shows 2026 plays within osu!’s current top 1,000 PP rankings, not a complete annual archive. Only the highest-PP play per player and difficulty is shown. The dashboard shows up to 25 results and the slideshow shows five. Each entry links directly to its official score page. Global registrations, annual concurrency peaks, and ban counts are not included. Source: https://osu.ppy.sh/rankings/top-plays/osu
+
+Restart the local backend after updating; deploy both frontend and functions for the live site.
+
+### Ranked mapper leaderboard
+
+Global stats includes the top ten mapset hosts by unique currently ranked sets with a 2026 ranked date (UTC), filtered to native gamemodes. Each set counts once per matching mode, with guest difficulties excluded as separate credits. Ties share rank and are ordered by name. The UI displays snapshot time and catalogue coverage.
+
+Refresh locally with `node scripts/update-ranked-mappers.mjs`. The script uses existing osu! app credentials from the environment or `.env`, scans the complete catalogue with cursor pagination and rate limiting, and replaces the snapshot only on successful completion.
+
+The `Refresh ranked mapper leaderboard` GitHub Actions workflow refreshes daily at 08:23 UTC and supports manual runs. Add repository Actions secrets `OSU_CLIENT_ID` and `OSU_CLIENT_SECRET` (use the existing Wrapped app credentials) and allow Actions to write repository contents. Push the workflow and snapshot to the default branch to enable scheduled runs. Deploy the updated snapshot to publish refreshed counts.
+
+### Playstyle clubs
+
+Personal stats now include one of nine explainable clubs: Overdrive, Precision Society, HR Headquarters, Afterdark, Mapper Loyalists, The Wanderers, No Mod No Problem, All-Rounder, and The Repeat Offenders. Repeat Offenders uses recorded 2026 monthly activity: at least 10,000 plays and six months with at least 500 plays each, after mod and precision preferences. Clubs are assigned from the deduplicated selected-mode 2026 score sample, require at least one score, exclude CL, and use percentage-based mod preferences. Accuracy thresholds vary by mode. The card explains the deciding signal and full assignment rules; the slideshow reveals the club with an animated emblem and supports pause and reduced motion. Clubs are a playful sample-based summary, not a complete play-history classification.
