@@ -1,6 +1,6 @@
 # osu! wrapped 2026
 
-**Version 1.1.4**
+**Version 1.1.5**
 
 A Netlify-ready fan app that turns an osu! profile into a 2026 review, an interactive slideshow, and a downloadable recap card. Supports osu!, osu!taiko, osu!catch, and osu!mania. The demo works without OAuth credentials. No database is required.
 
@@ -128,7 +128,7 @@ The build outputs dist. Tests cover aggregation, preferred modes, mod counts, me
 
 OAuth requests identify public. Sessions are encrypted with AES-256-GCM and stored in HttpOnly, SameSite=Lax cookies, with Secure on HTTPS. No refresh token is stored; sign in again when the session expires. Private OAuth credentials stay on the backend. Signing out clears the session; access can also be revoked in osu! account settings.
 
-No database stores user reviews or replay files. Third-party artist and rarity data is cached as described above. Exported files are controlled by the user. Verify real OAuth, browser audio, sharing, and replay playback on the deployed site before release. See the [security review](docs/SECURITY-REVIEW.md) for remaining deployment checks.
+No database stores full user reviews or replay files. Optional Neon tracking stores pseudonymous club assignments only, when configured. Third-party artist and rarity data is cached as described above. Exported files are controlled by the user. Verify real OAuth, browser audio, sharing, and replay playback on the deployed site before release. See the [security review](docs/SECURITY-REVIEW.md) for remaining deployment checks.
 
 Independent fan project. Not affiliated with ppy or osu!. [osu! API documentation](https://osu.ppy.sh/docs/).
 
@@ -181,4 +181,8 @@ Mod preferences use percentages of the deduplicated selected-mode 2026 score sam
 
 Users qualifying for precision alongside another primary club receive the **Precision-minded** secondary archetype. The dashboard opens a scrollable legend of all nine clubs with the current club highlighted. The story uses a click-triggered evolution reveal with sound effects; text selection is disabled until the entrance animations finish. Reduced motion and mute are supported.
 
-Recap PNGs include the club emblem, color, name, motto, and assignment reason. When earned, the secondary archetype appears on the right with a central divider. Clubs are computed per review: no database stores assignments or community club percentages.
+Recap PNGs include the club emblem, color, name, motto, and assignment reason. When earned, the secondary archetype appears on the right with a central divider. Clubs are computed per review: optional Neon tracking stores pseudonymous assignments to calculate participant percentages; see the community setup guide.
+
+## Optional community club percentages
+
+Authenticated reviews can record pseudonymous club assignments in a separate Neon Free database. The dashboard, club legend, and story show community percentages once a mode has one participant. Repeat visits update the existing record. Tracking is disabled without configuration, and database outages do not block Wrapped. See [Neon setup and data scope](docs/CLUB-COMMUNITY.md).

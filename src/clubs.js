@@ -32,9 +32,16 @@ export function assignClub(scores,mode='osu',months=[]){
  else{id='allrounder';reason='No single mod preference or specialist signal dominates your '+total+' selected scores.';}
  return {id,total,reason,badge:precise&&id!=='precision'?'Precision-minded':null};
 }
+export function clubCommunityMarkup(data){
+ const community=data?.clubCommunity;if(data?.demo||!community)return '';
+ if(community.status==='collecting')return '<p class="club-community">Community club percentages unlock after '+escape(community.minimum)+' participants for this mode.</p>';
+ if(community.status!=='ready')return '<p class="club-community">Community club percentages are temporarily unavailable.</p>';
+ const row=community.clubs?.find(row=>row.id===data.club?.id);if(!row)return '';
+ return '<p class="club-community">You’re among <strong>'+row.percentage.toFixed(1)+'%</strong> of Wrapped participants in this club.<small>Based on '+community.total.toLocaleString('en-US')+' participants · '+escape(community.mode)+' · '+community.year+' · updates may take a minute</small></p>';
+}
 export function clubMarkup(data,{story=false}={}){
  const result=data?.club,club=CLUBS[result?.id];if(!club)return '<div class="club-pending"><h3>Your club is taking shape.</h3><p>At least one available 2026 score is needed to assign a playstyle club.</p></div>';
- return '<div class="playstyle-club club-'+result.id+(story?' club-reveal':'')+'"><div class="club-emblem" aria-hidden="true"><span class="club-emblem-orbit"></span><svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><circle cx="50" cy="50" r="43" stroke-width="1" opacity=".4"/><path d="'+club.icon+'"/></svg></div><div class="club-copy"><span class="club-caption">YOUR PLAYSTYLE CLUB</span><h3>'+club.name+'</h3><p class="club-motto">'+club.motto+'</p>'+(result.badge?'<span class="club-trait">'+escape(result.badge)+'</span>':'')+'<p class="club-reason">'+escape(result.reason)+'</p>'+(story?'':'<button type="button" class="club-legend-trigger" data-club-legend aria-haspopup="dialog">How your club was chosen ↗</button>')+'</div></div>';
+ return '<div class="playstyle-club club-'+result.id+(story?' club-reveal':'')+'"><div class="club-emblem" aria-hidden="true"><span class="club-emblem-orbit"></span><svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><circle cx="50" cy="50" r="43" stroke-width="1" opacity=".4"/><path d="'+club.icon+'"/></svg></div><div class="club-copy"><span class="club-caption">YOUR PLAYSTYLE CLUB</span><h3>'+club.name+'</h3><p class="club-motto">'+club.motto+'</p>'+(result.badge?'<span class="club-trait">'+escape(result.badge)+'</span>':'')+'<p class="club-reason">'+escape(result.reason)+'</p>'+clubCommunityMarkup(data)+(story?'':'<button type="button" class="club-legend-trigger" data-club-legend aria-haspopup="dialog">How your club was chosen ↗</button>')+'</div></div>';
 }
 
 const clubSignals={
@@ -48,8 +55,12 @@ const clubSignals={
  wanderer:'At least 10 unique mapper hosts and 10 artists; each unique-name count must be at least half your selected score count.',
  allrounder:'Your fallback club when no other qualifying preference or specialist signal takes priority.'
 };
+function legendCommunity(data,id){
+ const community=data?.clubCommunity;if(data?.demo||community?.status!=='ready')return '';
+ const row=community.clubs?.find(row=>row.id===id);return row?'<p class="club-legend-share"><strong>'+row.percentage.toFixed(1)+'%</strong> · '+row.count.toLocaleString('en-US')+' of '+community.total.toLocaleString('en-US')+' participants</p>':'';
+}
 export function clubLegendMarkup(data){
- return '<div class="club-legend-grid">'+Object.entries(CLUBS).map(([id,club])=>'<article class="club-legend-card club-'+id+'"'+(data?.club?.id===id?' aria-label="'+escape(club.name)+', your club"':'')+'><div class="club-legend-heading"><svg aria-hidden="true" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="'+club.icon+'"/></svg><h3>'+club.name+'</h3>'+(data?.club?.id===id?'<span class="club-legend-current">Your club</span>':'')+'</div><p class="club-legend-motto">'+club.motto+'</p><p>'+clubSignals[id]+'</p></article>').join('')+'</div>';
+ return '<div class="club-legend-grid">'+Object.entries(CLUBS).map(([id,club])=>'<article class="club-legend-card club-'+id+'"'+(data?.club?.id===id?' aria-label="'+escape(club.name)+', your club"':'')+'><div class="club-legend-heading"><svg aria-hidden="true" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="'+club.icon+'"/></svg><h3>'+club.name+'</h3>'+(data?.club?.id===id?'<span class="club-legend-current">Your club</span>':'')+'</div><p class="club-legend-motto">'+club.motto+'</p><p>'+clubSignals[id]+'</p>'+legendCommunity(data,id)+'</article>').join('')+'</div>';
 }
 export function openClubLegend(data){
  if(document.querySelector('.club-legend-dialog'))return;
@@ -57,8 +68,9 @@ export function openClubLegend(data){
  const header=document.createElement('div');header.className='replay-header';const title=document.createElement('h2');title.id='club-legend-title';title.textContent='Playstyle club legend';const close=document.createElement('button');close.type='button';close.textContent='Close ×';close.addEventListener('click',()=>dialog.close());header.append(title,close);
  const content=document.createElement('div');content.className='club-legend-content';
  const current=document.createElement('p');current.className='replay-note';current.textContent=data?.club?('Your club: '+CLUBS[data.club.id].name+'. '+data.club.reason):'One available 2026 score is enough to receive a club.';
+ const community=document.createElement('div');community.innerHTML=clubCommunityMarkup(data);
  const legend=document.createElement('div');legend.innerHTML=clubLegendMarkup(data);
  const rules=document.createElement('p');rules.className='replay-note';rules.textContent='How selection works: the highest qualifying mod percentage wins (ties: Overdrive, HR Headquarters, Afterdark, No Mod). Otherwise we check Precision Society, The Repeat Offenders, Mapper Loyalists, then The Wanderers; All-Rounder is the fallback. Mod percentages and accuracy use deduplicated 2026 scores in your current top 200 for the selected mode. CL is excluded; CL-only scores count as No Mod. Repeat Offenders uses recorded monthly playcounts. These clubs describe the available data, not your complete play history.';
- content.append(current,legend,rules);dialog.append(header,content);document.body.append(dialog);
+ content.append(current,community,legend,rules);dialog.append(header,content);document.body.append(dialog);
  dialog.addEventListener('click',event=>{if(event.target===dialog)dialog.close();});dialog.addEventListener('close',()=>{dialog.remove();if(focusBefore?.isConnected)focusBefore.focus();},{once:true});dialog.showModal();close.focus();
 }
