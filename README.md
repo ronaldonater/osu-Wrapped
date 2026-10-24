@@ -1,18 +1,18 @@
 # osu! wrapped 2026
 
-**Version 1.1.6**
+**Version 1.1.7**
 
 A Netlify-ready fan app that turns an osu! profile into a 2026 review, an interactive slideshow, and a downloadable recap card. Supports osu!, osu!taiko, osu!catch, and osu!mania. The demo works without OAuth credentials. No database is required.
 
 
-## v1.1.6 updates
+## v1.1.7 updates
 
-- Sixteen playstyle clubs, including EZ Does It (EZ on at least 40% of selected scores), Safety Net Society (SO/NF on at least 50%, NF only outside standard), and Close Enough Club (at least ten passed scores averaging below 90%, or below 95% in catch).
+- Eighteen playstyle clubs, including EZ Does It (EZ on at least 40% of selected scores), Safety Net Society (SO/NF on at least 50%, NF only outside standard), and Close Enough Club (at least ten passed scores averaging below 90%, or below 95% in catch).
 - Quality Over Quantity takes priority for users with 1–99 recorded 2026 profile plays across available months and at least one eligible score. Missing or zero profile history does not qualify.
 - Time Capsule (2016 or earlier), Class of 2026, and Crowd Favorites use the full eligible top-200 sample rather than only the top 25 scores.
 - All new clubs have matching emblems and colors in the dashboard, legend, animated story, and recap exports.
 - Optional Neon Free tracking shows community club percentages from one participant per year/mode/rule version. Repeat visits update existing pseudonymous records; database failures do not block Wrapped.
-- Before deploying to an existing database, run `scripts/sql/club-community-v4.sql` in Neon SQL Editor. It supports the earlier schemas and retains participant records. Fresh databases use `scripts/sql/club-community.sql`. Rule version `2026-v5` counts participants as they generate a fresh review.
+- Before deploying to an existing database, run `scripts/sql/club-community-v5.sql` in Neon SQL Editor. It supports the earlier schemas and retains participant records. Fresh databases use `scripts/sql/club-community.sql`. Rule version `2026-v5` counts participants as they generate a fresh review.
 
 ## Features
 
@@ -22,7 +22,7 @@ A Netlify-ready fan app that turns an osu! profile into a 2026 review, an intera
 - Top mapper and artist rankings with profile pictures where available. Artist pictures use TheAudioDB, with initials when no exact match exists.
 - Rarest medal earned in 2026, including artwork, award date, and a current Osekai rarity estimate. Visible percentages truncate to two decimal places; the full value is available on hover.
 - An interactive story with music, song previews, animated intro and finale, mapper/artist guessing games, and sound effects.
-- Sixteen playstyle clubs with a legend panel, animated reveal, and primary/secondary archetypes on the recap card.
+- Eighteen playstyle clubs with a legend panel, animated reveal, and primary/secondary archetypes on the recap card.
 - Global PP, popular mapset, mod, genre, and mapper rankings with mode-aware links and embedded viewers.
 - PNG recap export, JSON export, recap preview, and a share panel with Twitter/X and Bluesky links, an editable message, image/message copying, downloads, and native file sharing where supported.
 
@@ -173,7 +173,7 @@ The `Refresh ranked mapper leaderboard` GitHub Actions workflow refreshes daily 
 
 ### Playstyle clubs
 
-One available 2026 score is enough to receive a club. The sixteen clubs are:
+One available 2026 score is enough to receive a club. The eighteen clubs are:
 
 | Club | Qualifying signal |
 | --- | --- |
@@ -192,11 +192,13 @@ One available 2026 score is enough to receive a club. The sixteen clubs are:
 | Time Capsule | At least 60% of all eligible 2026 scores in the current top 200 are on mapsets ranked in 2016 or earlier; at least five scores. |
 | Class of 2026 | At least 60% of all eligible 2026 scores in the current top 200 are on mapsets ranked in 2026; at least five scores. |
 | Crowd Favorites | At least 40% of all eligible 2026 scores in the current top 200 overlap the selected mode’s popular 2026 top 25 mapsets, spanning at least three distinct sets and five eligible scores. |
+| Stable Loyalists | 100% confirmed osu!stable scores in the eligible 2026 top-200 sample. |
+| Lazer Pioneers | 100% confirmed osu!lazer scores in the eligible 2026 top-200 sample. |
 | All-Rounder | Fallback when no other qualifying signal takes priority. |
 
-Quality Over Quantity takes priority when available 2026 monthly history totals 1–99 plays. Zero or missing history does not qualify. Next, map preferences are checked in this order: Crowd Favorites, Time Capsule, Class of 2026. They use the user’s entire deduplicated 2026 sample from the current top 200, including scores without PP. Missing ranked dates do not count, and the denominator includes all eligible scores. Otherwise mod preferences use percentages of the deduplicated selected-mode 2026 score sample from the current top 200, excluding CL. The largest qualifying mod share wins; ties use Overdrive, HR Headquarters, Afterdark, No Mod, EZ Does It, then Safety Net Society. Otherwise priority is precision, lower accuracy, regular activity, mapper loyalty, exploration, then All-Rounder. Repeat Offenders uses available monthly profile playcounts (across modes), not inferred retries. These are playful descriptions of available data, not complete play histories.
+Quality Over Quantity takes priority when available 2026 monthly history totals 1–99 plays. Zero or missing history does not qualify. Next, an exclusive confirmed score client selects Stable Loyalists or Lazer Pioneers. Then map preferences are checked in this order: Crowd Favorites, Time Capsule, Class of 2026. They use the user’s entire deduplicated 2026 sample from the current top 200, including scores without PP. Missing ranked dates do not count, and the denominator includes all eligible scores. Otherwise mod preferences use percentages of the deduplicated selected-mode 2026 score sample from the current top 200, excluding CL. The largest qualifying mod share wins; ties use Overdrive, HR Headquarters, Afterdark, No Mod, EZ Does It, then Safety Net Society. Otherwise priority is precision, lower accuracy, regular activity, mapper loyalty, exploration, then All-Rounder. Repeat Offenders uses available monthly profile playcounts (across modes), not inferred retries. These are playful descriptions of available data, not complete play histories.
 
-Users qualifying for precision alongside another primary club receive the **Precision-minded** secondary archetype. The dashboard opens a scrollable legend of all sixteen clubs with the current club highlighted. The story uses a click-triggered evolution reveal with sound effects; text selection is disabled until the entrance animations finish. Reduced motion and mute are supported.
+Users qualifying for precision alongside another primary club receive the **Precision-minded** secondary archetype. The dashboard opens a scrollable legend of all eighteen clubs with the current club highlighted. The story uses a click-triggered evolution reveal with sound effects; text selection is disabled until the entrance animations finish. Reduced motion and mute are supported.
 
 Recap PNGs include the club emblem, color, name, motto, and assignment reason. When earned, the secondary archetype appears on the right with a central divider. Clubs are computed per review: optional Neon tracking stores pseudonymous assignments to calculate participant percentages; see the community setup guide.
 
@@ -215,6 +217,21 @@ Missing map ranking dates are not counted as old/new matches. The backend attemp
 Only two SQL files are needed:
 
 - `scripts/sql/club-community.sql`: create a fresh database table.
-- `scripts/sql/club-community-v4.sql`: update any existing earlier schema directly, preserving participant records. Superseded v2/v3 migration files were removed.
+- `scripts/sql/club-community-v5.sql`: update any existing earlier schema directly, preserving participant records. Superseded v2/v3 migration files were removed.
 
-Current assignment rules are **`2026-v5`**. The SQL schema migration is still **v4**; no new SQL is needed if it has already been applied. Percentages include participants under the current rules as they generate a fresh review. Keep the database URL and tracking secret unchanged. See [community setup](docs/CLUB-COMMUNITY.md) for private environment variables and deployment steps.
+Current assignment rules are **`2026-v6`**. The SQL schema migration is now **v5**; no new SQL is needed if it has already been applied. Percentages include participants under the current rules as they generate a fresh review. Keep the database URL and tracking secret unchanged. See [community setup](docs/CLUB-COMMUNITY.md) for private environment variables and deployment steps.
+
+### Stable and lazer clubs
+
+Stable Loyalists and Lazer Pioneers require 100% of the full eligible 2026 sample to have the same confirmed client. Mixed or missing metadata cannot qualify; CL alone is not a client detector. Client exclusivity takes priority after Quality Over Quantity and before map/mod preferences. Modern stable scores have a positive legacy score ID; confirmed lazer records have a null legacy ID with a solo-score type or client build ID. Explicit boolean client metadata is also supported. Descriptions refer to the available sample rather than all lifetime scores. Run `scripts/sql/club-community-v5.sql` before deploying these clubs; assignment rule version is `2026-v6`. This migration preserves rows and supports all older schemas directly.
+
+
+### Latest club updates (v1.1.7)
+
+- 18 clubs, each with a unique hex color, emblem, legend entry, and recap styling.
+- Stable Loyalists and Lazer Pioneers require 100% confirmed client usage across all eligible 2026 scores from the current top 200. Mixed or unknown client metadata does not qualify. These clubs take priority after Quality Over Quantity, before map/mod preferences.
+- Time Capsule includes mapsets ranked in 2016 or earlier. Class of 2026 and Crowd Favorites also use the entire eligible sample, not just the user's top 25 scores.
+- EZ Does It motto: "Smaller score. Bigger mind games."
+- Legend community percentages stay aligned at the bottom of each card, and legend copy uses regular hyphens.
+- Current assignment rules: `2026-v6`. Latest schema upgrade: `scripts/sql/club-community-v5.sql`. Run it in Neon SQL Editor before deploying if your database has not already been upgraded. It directly supports earlier schemas and retains existing participant rows. Fresh databases use `scripts/sql/club-community.sql`.
+- Keep the connection string and tracking secret unchanged. Returning participants update their existing assignment when they generate a new review; percentages include the current rule version only.
