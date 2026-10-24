@@ -1,15 +1,19 @@
 # osu! wrapped 2026
 
+**Version 1.1.1**
+
 A Netlify-ready fan app that turns an osu! profile into a 2026 review, an interactive slideshow, and a downloadable recap card. Supports osu!, osu!taiko, osu!catch, and osu!mania. The demo works without OAuth credentials. No database is required.
 
 ## Features
 
 - Responsive stats dashboard with monthly activity, average accuracy and its letter grade, highest combo, medals unlocked, and replay views.
-- Favorite Mod with official colored SVG icons, score counts, and tie handling. Individual mods are counted separately, CL is excluded, and CL-only or unmodded scores count as No Mod.
+- Favorite Mod with official colored SVG icons, visible score percentages, a clickable full mod breakdown, a personal mod rankings slide, and tie handling. Individual mods are counted separately, CL is excluded, and CL-only or unmodded scores count as No Mod.
 - Top 25 selected PP scores with artwork, grades, dates, mapper credits, exact PP tooltips, score links, and replay viewing where available.
 - Top mapper and artist rankings with profile pictures where available. Artist pictures use TheAudioDB, with initials when no exact match exists.
-- Rarest medal earned in 2026, including artwork, award date, and a current Osekai rarity estimate.
+- Rarest medal earned in 2026, including artwork, award date, and a current Osekai rarity estimate. Visible percentages truncate to two decimal places; the full value is available on hover.
 - An interactive story with music, song previews, animated intro and finale, mapper/artist guessing games, and sound effects.
+- Nine playstyle clubs with a legend panel, animated reveal, and primary/secondary archetypes on the recap card.
+- Global PP, popular mapset, mod, genre, and mapper rankings with mode-aware links and embedded viewers.
 - PNG recap export, JSON export, recap preview, and a share panel with Twitter/X and Bluesky links, an editable message, image/message copying, downloads, and native file sharing where supported.
 
 The initial mode follows the user's preferred mode on osu!. Users can switch modes manually.
@@ -37,7 +41,7 @@ Generate a session secret with:
 node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 ~~~
 
-Keep .env private and never prefix backend secrets with VITE_. Restart the local runner after changing backend modules or environment variables. Frontend edits reload through Vite.
+Keep .env private and never prefix backend secrets with VITE_. Backend modules reload through the local runner; restart it after changing environment variables. Frontend edits reload through Vite.
 
 The local runner uses scripts/dev.mjs to serve Vite and the actual Fetch API function. It bypasses a Netlify CLI proxy compatibility issue, but does not emulate deployed security headers or distributed rate limits.
 
@@ -75,9 +79,11 @@ Year boundaries use UTC. Before January 1, 2027, this is a year-to-date review. 
 
 First successful sign-in automatically opens the story once per player and year in that browser. Replay Experience opens it again anytime. Seen state is stored in localStorage; another browser, cleared storage, or blocked storage can cause it to appear again.
 
-The full story includes 13 slides when both quizzes have enough candidates. Controls support pause/play, mute, previous/next, slide selection, swipe, and Escape. Reduced-motion starts paused and skips the animated opening sequences. Mobile uses lighter effects; desktop keeps the full animation treatment.
+The full story includes up to 27 slides when both quizzes have enough candidates. Controls support pause/play, mute, previous/next, slide selection, swipe, and Escape. Reduced-motion starts paused and skips the animated opening sequences. Mobile uses lighter effects; desktop keeps the full animation treatment.
 
 The opening uses cYsmix - Triangles and the finale uses nekodex - circles!. The top-play and artist slides use looping osu! beatmap previews where available. Quiz/mapper slides use an original ambient loop. Audio fades between sections and follows pause, visibility, and mute controls. Browsers may require pressing Play before allowing audio.
+
+Navigating to another slide while paused immediately shows its completed counters, grades, club reveal, and contextual panels. Skipped entrance sound effects do not replay when playback resumes. Pausing an animation already in progress preserves its current state.
 
 Saving a recap keeps the slideshow open. Opening its share panel pauses playback and resumes it on close only if the panel caused that pause. Close, Done, and Escape use the closing sound and fade.
 
@@ -110,7 +116,9 @@ The build outputs dist. Tests cover aggregation, preferred modes, mod counts, me
 | src/summary.js, src/mods.js, src/accuracy.js | Score aggregation and stat calculations |
 | src/experience.js | Interactive story and audio |
 | src/recap.js, src/share.js | PNG generation and sharing |
-| src/replay.js | Embedded replay viewer |
+| src/replay.js, src/beatmap-viewer.js | Embedded replay and beatmap viewers |
+| src/clubs.js, src/mod-breakdown.js | Club assignment, legend, and personal mod rankings |
+| src/global.js | Global rankings and mode-aware genre/mapset links |
 | src/medals.js, src/mod-icons.js | Medal display and local mod artwork |
 | netlify/functions/api.mjs | Netlify Fetch API entrypoint |
 | netlify/functions/lib/ | OAuth, security, artwork, and rarity services |
@@ -127,13 +135,23 @@ Independent fan project. Not affiliated with ppy or osu!. [osu! API documentatio
 
 ## Global stats
 
-A sliding Your Stats / Global Stats selector switches the dashboard scope while preserving the selected ruleset. The slideshow adds an animated global introduction and a top-five recorded-play slide after personal rankings and before the finale. Full stories now contain 13 slides when both quizzes are available.
+The Your Stats / Global Stats selector preserves the selected gamemode. The full experience has up to **27 slides** when both quizzes have enough candidates.
 
-The global endpoint reads the official osu! top plays rankings, including player names, beatmap details, mods, PP, and direct score IDs. It scans up to ten pages (1,000 plays) until it finds 25 unique eligible 2026 plays, and caches results for 15 minutes per warm instance. No additional credentials or user permissions are required. Failed global requests preserve personal stats and may return previously cached global data with a stale-data notice.
+Global panels include:
 
-This leaderboard shows 2026 plays within osu!’s current top 1,000 PP rankings, not a complete annual archive. Only the highest-PP play per player and difficulty is shown. The dashboard shows up to 25 results and the slideshow shows five. Each entry links directly to its official score page. Global registrations, annual concurrency peaks, and ban counts are not included. Source: https://osu.ppy.sh/rankings/top-plays/osu
+- Up to 25 recorded 2026 PP plays from the current official top 1,000, plus player appearance rankings.
+- The 25 most-played mapsets ranked in 2026, ordered by lifetime mapset plays. Links open the most-played native difficulty for the selected mode.
+- Individual mod usage across the global top 25 PP plays, showing counts and percentages. CL is excluded and ties share a rank.
+- Up to ten genres across the popular top 25 mapsets, counting each unique mapset once. Missing metadata is labeled Unknown genre. Genre links open osu! searches filtered to the selected mode; the story shows the top five genres.
+- Ranked mapper totals and the number of unique mapsets ranked in 2026, from the catalogue snapshot described below.
 
-Restart the local backend after updating; deploy both frontend and functions for the live site.
+Community slides also show approximate new accounts, peak concurrent users with OhnePixel context, and over 1.7 billion ranked plays submitted. These community figures are separate from the selected-mode score sample; source and coverage notes appear on their slides. Restriction counts are not included.
+
+The global backend scans up to ten official ranking pages until it finds 25 eligible unique 2026 plays. Only the highest-PP play per player and difficulty is retained. This is not a complete annual archive. Results are cached for 15 minutes per warm instance; upstream failures preserve personal stats and may return stale cached results. Popular-mapset searches use the existing osu! application's public client credentials, with no additional service account or database.
+
+### Beatmap and replay panels
+
+Watch beatmap opens the embedded [JoSu beatmap viewer](https://preview.tryz.id.vn/), using the most-played native difficulty for the selected mode. Buttons are enabled for all four modes; viewer support can vary. Global Watch replay verifies that the requested score belongs to the returned global top 25 before downloading it for the signed-in user. Personal replay downloads still require score ownership. Tokens are never sent to either viewer.
 
 ### Ranked mapper leaderboard
 
@@ -145,4 +163,22 @@ The `Refresh ranked mapper leaderboard` GitHub Actions workflow refreshes daily 
 
 ### Playstyle clubs
 
-Personal stats now include one of nine explainable clubs: Overdrive, Precision Society, HR Headquarters, Afterdark, Mapper Loyalists, The Wanderers, No Mod No Problem, All-Rounder, and The Repeat Offenders. Repeat Offenders uses recorded 2026 monthly activity: at least 10,000 plays and six months with at least 500 plays each, after mod and precision preferences. Clubs are assigned from the deduplicated selected-mode 2026 score sample, require at least one score, exclude CL, and use percentage-based mod preferences. Accuracy thresholds vary by mode. The card explains the deciding signal and full assignment rules; the slideshow reveals the club with an animated emblem and supports pause and reduced motion. Clubs are a playful sample-based summary, not a complete play-history classification.
+One available 2026 score is enough to receive a club. The nine clubs are:
+
+| Club | Qualifying signal |
+| --- | --- |
+| Overdrive | DT or NC on at least 40% of selected scores. |
+| HR Headquarters | HR on at least 40%; excluded as a defining club for mania. |
+| Afterdark | HD or FL on at least 50%. |
+| No Mod, No Problem | Unmodified scores on at least 60%. |
+| Precision Society | At least ten passed scores averaging 99% in osu!/taiko, 99.5% in catch, or 98% in mania. |
+| The Repeat Offenders | At least 10,000 recorded 2026 plays and six months with at least 500 plays each. |
+| Mapper Loyalists | At least 25% of selected scores under one mapset host. |
+| The Wanderers | At least ten distinct hosts and ten artists; each unique-name count is at least half the score count. |
+| All-Rounder | Fallback when no other qualifying signal takes priority. |
+
+Mod preferences use percentages of the deduplicated selected-mode 2026 score sample from the current top 200, excluding CL. The largest qualifying mod share wins; ties use Overdrive, HR Headquarters, Afterdark, then No Mod. Otherwise priority is precision, regular activity, mapper loyalty, exploration, then All-Rounder. Repeat Offenders uses available monthly profile playcounts (across modes), not inferred retries. These are playful descriptions of available data, not complete play histories.
+
+Users qualifying for precision alongside another primary club receive the **Precision-minded** secondary archetype. The dashboard opens a scrollable legend of all nine clubs with the current club highlighted. The story uses a click-triggered evolution reveal with sound effects; text selection is disabled until the entrance animations finish. Reduced motion and mute are supported.
+
+Recap PNGs include the club emblem, color, name, motto, and assignment reason. When earned, the secondary archetype appears on the right with a central divider. Clubs are computed per review: no database stores assignments or community club percentages.
