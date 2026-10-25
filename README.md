@@ -1,12 +1,13 @@
 # osu! wrapped 2026
 
-**Version 1.1.14**
+**Version 1.1.15**
 
 A Netlify-ready fan app that turns an osu! profile into a 2026 review, an interactive slideshow, and a downloadable recap card. Supports osu!, osu!taiko, osu!catch, and osu!mania. The demo works without OAuth credentials. No database is required.
 
 
-## v1.1.14 updates
+## v1.1.15 updates
 
+- On desktop, the five visible genre rows expand to fill the space beside the mod rankings, with remaining genres scrollable. Mobile retains compact rows.
 - Genre rankings now cover all currently ranked mapsets with a 2026 ranked date in the selected native gamemode, instead of only the 25 most-played mapsets. Each unique mapset counts once; missing genre metadata is counted as Unknown genre.
 - The global genre panel lists every genre in a keyboard-accessible scroll list with five entries visible initially. The slideshow shows only the top five genres.
 - The genre slide appears immediately after "New patterns. More ways to play." (the total mapsets ranked in 2026 slide).
