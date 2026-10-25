@@ -1,12 +1,16 @@
 # osu! wrapped 2026
 
-**Version 1.1.10**
+**Version 1.1.11**
 
 A Netlify-ready fan app that turns an osu! profile into a 2026 review, an interactive slideshow, and a downloadable recap card. Supports osu!, osu!taiko, osu!catch, and osu!mania. The demo works without OAuth credentials. No database is required.
 
 
-## v1.1.10 updates
+## v1.1.11 updates
 
+- Personal Wrapped requires at least one eligible 2026 score from the selected mode's current top 200. With zero eligible scores, an explanation replaces the dashboard and its slideshow/recap controls; switching modes remains available.
+- Slides automatically scale to fit the available screen space while playback and navigation controls remain full-size.
+- Keyboard arrow navigation survives slide content changes without requiring another click, and yields to other open panels.
+- Removed the arrow from the “Click the play to view score” hint.
 - All 18 clubs can be primary or secondary. Every qualifying signal is ranked; the strongest becomes primary and the next distinct match becomes secondary.
 - Evidence weighting reduces the influence of small samples. One selected score remains eligible; reviews with fewer than 20 selected scores display a provisional note. Score-based signals reach full weight at 20 evidence scores, using valid passed scores for accuracy. Activity signals reach full weight at six available months.
 - Mapper Loyalists requires three matching scores across at least two distinct mapsets. Balanced All-Rounder considers mod, mapper, and artist variety rather than mods alone.
@@ -207,7 +211,7 @@ One available 2026 score is enough to receive a club. The eighteen clubs are:
 | EZ Does It | EZ on at least 40% of selected scores. |
 | Close Enough Club | At least ten passed scores below 90% mean accuracy (95% in catch); considered after mod preferences. |
 | Safety Net Society | SO/NF on at least 50% (NF only outside osu!); no inference of deranking intent. |
-| Quality Over Quantity | 1–99 recorded 2026 profile plays across available months (all modes); competes by strength with other qualifying signals. |
+| Quality Over Quantity | 1-99 recorded 2026 profile plays across available months (all modes); competes by strength with other qualifying signals. |
 | Time Capsule | At least 60% of all eligible 2026 scores in the current top 200 are on mapsets ranked in 2016 or earlier; at least five scores. |
 | Class of 2026 | At least 60% of all eligible 2026 scores in the current top 200 are on mapsets ranked in 2026; at least five scores. |
 | Crowd Favorites | At least 40% of all eligible 2026 scores in the current top 200 overlap the selected mode’s popular 2026 top 25 mapsets, spanning at least three distinct sets and five eligible scores. |
