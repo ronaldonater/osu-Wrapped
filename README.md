@@ -1,12 +1,16 @@
 # osu! wrapped 2026
 
-**Version 1.1.13**
+**Version 1.1.14**
 
 A Netlify-ready fan app that turns an osu! profile into a 2026 review, an interactive slideshow, and a downloadable recap card. Supports osu!, osu!taiko, osu!catch, and osu!mania. The demo works without OAuth credentials. No database is required.
 
 
-## v1.1.13 updates
+## v1.1.14 updates
 
+- Genre rankings now cover all currently ranked mapsets with a 2026 ranked date in the selected native gamemode, instead of only the 25 most-played mapsets. Each unique mapset counts once; missing genre metadata is counted as Unknown genre.
+- The global genre panel lists every genre in a keyboard-accessible scroll list with five entries visible initially. The slideshow shows only the top five genres.
+- The genre slide appears immediately after "New patterns. More ways to play." (the total mapsets ranked in 2026 slide).
+- Genre counts and percentages refresh through the existing daily ranked-catalogue GitHub Actions workflow. No new secrets or workflow settings are required; the refreshed snapshot is included.
 - Centered the full-width All-Rounder legend heading and simplified the One Shot Society requirement wording.
 - Added One Shot Society for SD/PF players: at least 40% of selected scores, with a 40-55 base strength and support as a primary or secondary club.
 - Community tracking now supports 19 clubs under assignment rules `2026-v13`. Run `scripts/sql/club-community-v6.sql` for an existing database; use `scripts/sql/club-community.sql` for a fresh database. Superseded migrations have been removed.
@@ -273,3 +277,5 @@ Current assignment rules are `2026-v13`. Listed strength ranges are base weights
 Mapper Loyalists additionally requires at least three matching scores across two distinct mapsets from the same host. Balanced All-Rounder considers at least three mod combinations, five hosts, and five artists, with no tracked mod family reaching 40%. All 19 clubs remain eligible for primary or secondary. Mode-specific accuracy thresholds remain heuristic; they are not claimed to be population-calibrated. This update needs no new SQL on schema v5.
 
 One Shot Society: SD or PF on at least 40% of selected scores, counting each score once. Base strength 40-55 with the same evidence weighting as other mod clubs; eligible as primary or secondary. Unique color: #d4e579. Existing databases must run `scripts/sql/club-community-v6.sql` before deployment; fresh databases use the base SQL. The migration preserves participant records. Current assignment rules: `2026-v13`.
+
+Genre rankings cover all currently ranked mapsets with a 2026 ranked date for the selected native gamemode, refreshed with the daily catalogue snapshot. Each unique mapset counts once. The global panel lists every genre in a scrollable five-row viewport; the slideshow shows only the top five. Missing genre metadata counts as Unknown genre. After deploying this change, run the Refresh ranked mapper leaderboard workflow once to populate the new snapshot fields.
