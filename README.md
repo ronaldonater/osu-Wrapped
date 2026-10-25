@@ -1,12 +1,17 @@
 # osu! wrapped 2026
 
-**Version 1.1.17**
+**Version 1.1.18**
 
 A Netlify-ready fan app that turns an osu! profile into a 2026 review, an interactive slideshow, and a downloadable recap card. Supports osu!, osu!taiko, osu!catch, and osu!mania. The demo works without OAuth credentials. No database is required.
 
 
-## v1.1.17 updates
+## v1.1.18 updates
 
+- Added a blueprint-themed mapping panel at the bottom of personal stats. It counts hosted mapsets first submitted in 2026 (UTC), the currently ranked subset, and combined all-time plays on those mapsets across all modes.
+- Added a mapping slide after the club reveal. It showcases the most-played 2026 submission with cover artwork, title, artist, lifetime playcount, and a mapset link, and plays its complete audio preview. The slide is skipped when there are no qualifying mapsets or mapping data is unavailable.
+- Recap cards include mapping counts and grow to fit the added section. Medal artwork now retains its original aspect ratio.
+- Artist photos fall back to a matching beatmap background on the dashboard, slideshow, and recap card, then to an initial if both images fail.
+- Mapping data uses paginated osu! profile catalogues with a 15-minute cache. Incomplete or failed fetches show unavailable. No new OAuth scopes, secrets, or database migration are required.
 - Replaced the elongated dash in the recap card date range with a regular hyphen.
 - Standardized the website introduction credit to lowercase `ronaldonater`.
 - On desktop, the five visible genre rows expand to fill the space beside the mod rankings, with remaining genres scrollable. Mobile retains compact rows.
@@ -282,3 +287,11 @@ Mapper Loyalists additionally requires at least three matching scores across two
 One Shot Society: SD or PF on at least 40% of selected scores, counting each score once. Base strength 40-55 with the same evidence weighting as other mod clubs; eligible as primary or secondary. Unique color: #d4e579. Existing databases must run `scripts/sql/club-community-v6.sql` before deployment; fresh databases use the base SQL. The migration preserves participant records. Current assignment rules: `2026-v13`.
 
 Genre rankings cover all currently ranked mapsets with a 2026 ranked date for the selected native gamemode, refreshed with the daily catalogue snapshot. Each unique mapset counts once. The global panel lists every genre in a scrollable five-row viewport; the slideshow shows only the top five. Missing genre metadata counts as Unknown genre. After deploying this change, run the Refresh ranked mapper leaderboard workflow once to populate the new snapshot fields.
+
+Personal mapping stats show hosted mapsets first submitted in 2026 (UTC), across all modes, and how many of those are currently ranked. The app paginates ranked/loved/pending/graveyard profile catalogues, deduplicates set IDs, and caches successful results for 15 minutes. Missing or incomplete fetches show unavailable, not a misleading zero. Guest difficulties hosted by others, deleted sets, and local-only maps are excluded. No new OAuth scopes, database migration, or secrets are needed.
+
+Mapping statistics also appear on a conditional personal slide after the club reveal and before community statistics, plus a compact two-count section near the recap card footer. Both show first-submitted 2026 hosted mapsets across all modes and the currently ranked subset. Unavailable mapping data omits these sections; valid zero counts remain visible. The recap canvas grows to accommodate the new row.
+
+The mapping slide is skipped when no hosted mapsets were first submitted in 2026. Otherwise it plays the complete osu! audio preview of the most-played mapset in that cohort, using lifetime mapset playcount, and advances when the preview ends. Missing preview playback falls back to the normal slide duration. Zero counts remain visible on the dashboard and recap.
+
+The mapping dashboard, slide, and recap also show combined all-time plays on the user’s hosted mapsets first submitted in 2026. Counts combine all difficulties and modes in each unique mapset. Missing playcount metadata is shown as unavailable rather than zero.
