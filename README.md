@@ -1,12 +1,13 @@
 # osu! wrapped 2026
 
-**Version 1.1.12**
+**Version 1.1.13**
 
 A Netlify-ready fan app that turns an osu! profile into a 2026 review, an interactive slideshow, and a downloadable recap card. Supports osu!, osu!taiko, osu!catch, and osu!mania. The demo works without OAuth credentials. No database is required.
 
 
-## v1.1.12 updates
+## v1.1.13 updates
 
+- Centered the full-width All-Rounder legend heading and simplified the One Shot Society requirement wording.
 - Added One Shot Society for SD/PF players: at least 40% of selected scores, with a 40-55 base strength and support as a primary or secondary club.
 - Community tracking now supports 19 clubs under assignment rules `2026-v13`. Run `scripts/sql/club-community-v6.sql` for an existing database; use `scripts/sql/club-community.sql` for a fresh database. Superseded migrations have been removed.
 - Personal Wrapped requires at least one eligible 2026 score from the selected mode's current top 200. With zero eligible scores, an explanation replaces the dashboard and its slideshow/recap controls; switching modes remains available.
