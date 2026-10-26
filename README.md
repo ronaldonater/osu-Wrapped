@@ -1,9 +1,16 @@
 # osu! wrapped 2026
 
-**Version 1.1.23**
+**Version 1.1.24**
 
 A Netlify-ready fan app that turns an osu! profile into a 2026 review, an interactive slideshow, and a downloadable recap card. Supports osu!, osu!taiko, osu!catch, and osu!mania. The demo works without OAuth credentials. The dashboard and demo work without a database; community club percentages optionally use Neon.
 
+
+## v1.1.24 updates
+
+- Renamed HR Headquarters to Hardrock Headquarters and added a rock-hand logo.
+- Refreshed Lazer Pioneers, Close Enough Club, Class of 2026, Crowd Favorites, Choke Artists, and Ranked Debut icons.
+- Renamed Community Soundtrack to Crowd Pleasers with a cheering-crowd logo.
+- Shared artwork updates apply across the dashboard, legend, slideshow, and recap. No SQL changes are required.
 
 ## v1.1.23 updates
 
@@ -251,7 +258,7 @@ One available 2026 score is enough to receive a club. The 21 clubs are:
 | Club | Qualifying signal |
 | --- | --- |
 | Overdrive | DT or NC on at least 40% of selected scores. |
-| HR Headquarters | HR on at least 40%; excluded as a defining club for mania. |
+| Hardrock Headquarters | HR on at least 40%; excluded as a defining club for mania. |
 | Afterdark | HD or FL on at least 50%. |
 | No Mod, No Problem | Unmodified scores on at least 60%. |
 | Precision Society | At least ten passed scores averaging 99% in osu!/taiko, 99.5% in catch, or 98% in mania. |
@@ -311,7 +318,7 @@ Each mode includes real public metadata for ten native-mode mapsets from at leas
 
 Mapping clubs have separate assignments and community percentages from playstyle clubs. The mapping panel includes a six-club legend; the mapping slide and recap feature the first qualifying club in this order:
 
-1. Community Soundtrack: at least 100,000 combined lifetime plays on 2026 submissions.
+1. Crowd Pleasers: at least 100,000 combined lifetime plays on 2026 submissions.
 2. Ranked & Recognized: at least 3 currently ranked 2026 submissions.
 3. Ranked Debut: at least 1 currently ranked 2026 submission, regardless of earlier ranked mapsets.
 4. Pattern Factory: at least 10 mapsets submitted in 2026.
