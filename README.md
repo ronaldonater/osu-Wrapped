@@ -1,9 +1,14 @@
 # osu! wrapped 2026
 
-**Version 1.1.22**
+**Version 1.1.23**
 
 A Netlify-ready fan app that turns an osu! profile into a 2026 review, an interactive slideshow, and a downloadable recap card. Supports osu!, osu!taiko, osu!catch, and osu!mania. The demo works without OAuth credentials. The dashboard and demo work without a database; community club percentages optionally use Neon.
 
+
+## v1.1.23 updates
+
+- Added a subtle animated rainbow outline to the current mapping club label in the legend.
+- The outline rotates on a nine-second loop and remains static when reduced motion is enabled.
 
 ## v1.1.22 updates
 
