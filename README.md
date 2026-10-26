@@ -1,9 +1,15 @@
 # osu! wrapped 2026
 
-**Version 1.1.24**
+**Version 1.1.25**
 
 A Netlify-ready fan app that turns an osu! profile into a 2026 review, an interactive slideshow, and a downloadable recap card. Supports osu!, osu!taiko, osu!catch, and osu!mania. The demo works without OAuth credentials. The dashboard and demo work without a database; community club percentages optionally use Neon.
 
+
+## v1.1.25 updates
+
+- Prevent iOS emoji substitution for link arrows and replace the decorative asterisk with SVG.
+- Adapt long mobile quiz labels to their button width, allowing taller buttons for exceptional names.
+- Match the All-Rounder legend card to the other cards on mobile while retaining its centered desktop layout.
 
 ## v1.1.24 updates
 
@@ -344,3 +350,7 @@ Playstyle assignment rules are `2026-v15`. Replay Society uses the existing play
 ## Mapping-only Wrapped
 
 Users with no eligible 2026 scores in the selected mode can still participate when they have at least one hosted mapset first submitted in 2026 across all modes. Their dashboard focuses on uploads, mapping club and mapping community percentages. The slideshow includes the opening, personal mapping slide with preview, community section and finale; it skips personal score, mod, accuracy, favorite mapper/artist, quizzes and playstyle club slides. The dedicated compact recap includes upload counters, mapping club and most-played upload, with no empty score sections. Save/share/JSON and first-login playback remain available. Users with neither eligible scores nor uploads remain blocked; unavailable mapping data does not grant eligibility. No SQL changes are required.
+
+## Mobile presentation
+
+Link arrows request Unicode text presentation to avoid iOS emoji substitution. The decorative landing-page asterisk uses SVG. Mobile quiz answer labels shrink from 15px toward 11px to fit approximately three lines; exceptionally long names can increase button height instead of overflowing. Fitting updates when the stage resizes or fonts finish loading. All-Rounder uses the same left-aligned legend layout as other clubs at widths up to 600px; its desktop card remains centered.
