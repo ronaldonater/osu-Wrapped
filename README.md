@@ -1,9 +1,16 @@
 # osu! wrapped 2026
 
-**Version 1.1.20**
+**Version 1.1.21**
 
 A Netlify-ready fan app that turns an osu! profile into a 2026 review, an interactive slideshow, and a downloadable recap card. Supports osu!, osu!taiko, osu!catch, and osu!mania. The demo works without OAuth credentials. The dashboard and demo work without a database; community club percentages optionally use Neon.
 
+
+## v1.1.21 updates
+
+- Allow users with eligible 2026 uploads and no eligible scores to access mapping-only Wrapped.
+- Add a focused mapping dashboard, slideshow path, and dedicated recap without empty score-based sections.
+- Tighten mapping recap spacing and frame the mapping club logo to match the dashboard.
+- Users with neither eligible scores nor uploads remain blocked. No database migration is required.
 
 ## v1.1.20 updates
 
@@ -37,7 +44,7 @@ A Netlify-ready fan app that turns an osu! profile into a 2026 review, an intera
 - Centered the full-width All-Rounder legend heading and simplified the One Shot Society requirement wording.
 - Added One Shot Society for SD/PF players: at least 40% of selected scores, with a 40-55 base strength and support as a primary or secondary club.
 - Community tracking supports 21 playstyle clubs under assignment rules `2026-v15`. Existing databases use `scripts/sql/club-community-v8.sql`; fresh databases use `scripts/sql/club-community.sql`. Mapping tracking uses its own SQL table.
-- Personal Wrapped requires at least one eligible 2026 score from the selected mode's current top 200. With zero eligible scores, an explanation replaces the dashboard and its slideshow/recap controls; switching modes remains available.
+- Personal Wrapped requires an eligible 2026 score from the selected mode's current top 200 or a hosted mapset first submitted in 2026. Users with uploads but no scores receive mapping-only Wrapped; users with neither see an explanation and can switch modes.
 - Slides automatically scale to fit the available screen space while playback and navigation controls remain full-size.
 - Keyboard arrow navigation survives slide content changes without requiring another click, and yields to other open panels.
 - Removed the arrow from the “Click the play to view score” hint.
@@ -317,3 +324,7 @@ Replay Society - "Your plays deserve another look." Requires at least 500 views 
 500 per year is a provisional, deliberately substantial design threshold (about 42 per month over a full year), not a verified percentile or population average. No reliable population distribution was available during implementation. Base strength is 55 + 25 * clamp(log10(views / 500) / 2, 0, 1): 55 at 500, 67.5 at 5,000, 80 at 50,000+. Apply the same activity confidence multiplier as other activity clubs: 0.75 + 0.25 * min(available replay-history months / 6, 1). No annualization of partial-year data; missing or invalid history cannot qualify. It can be a primary or secondary trait.
 
 Playstyle assignment rules are `2026-v15`. Replay Society uses the existing playstyle community table and v8 migration; mapping tracking remains independent.
+
+## Mapping-only Wrapped
+
+Users with no eligible 2026 scores in the selected mode can still participate when they have at least one hosted mapset first submitted in 2026 across all modes. Their dashboard focuses on uploads, mapping club and mapping community percentages. The slideshow includes the opening, personal mapping slide with preview, community section and finale; it skips personal score, mod, accuracy, favorite mapper/artist, quizzes and playstyle club slides. The dedicated compact recap includes upload counters, mapping club and most-played upload, with no empty score sections. Save/share/JSON and first-login playback remain available. Users with neither eligible scores nor uploads remain blocked; unavailable mapping data does not grant eligibility. No SQL changes are required.

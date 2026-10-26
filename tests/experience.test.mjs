@@ -31,8 +31,8 @@ test('quizzes immediately precede reveals and support ties without inventing ext
 
 test('genre slide follows the ranked mapset total and shows at most five genres with its source explained',()=>{const data=player(555);data.globalStats={rankedGenres:{totalSets:12,rows:[2,3,4,5,6,7,9,10,11,12,13,14].map(id=>({id,count:1}))}};const slides=experienceSlides(data);const index=slides.findIndex(s=>s.layout==='global-genres');assert.ok(index>0);assert.equal(slides[index-1].title,'New patterns.<br>More ways to play.');assert.equal((slides[index].body.match(/<li>/g)||[]).length,5);assert.ok(slides[index].note.includes('Each mapset counts once'));});
 
- test('zero eligible scores cannot open or consume a Wrapped experience',()=>{
- const empty={...player(98765),sampleCount:0};
+ test('zero eligible scores and no eligible uploads cannot open or consume a Wrapped experience',()=>{
+ const empty={...player(98765),sampleCount:0,mapping:{status:'ready',created:0}};
  assert.equal(canViewWrapped(empty),false);
  assert.equal(firstExperience(empty),false);
  assert.equal(openExperience(empty),undefined);
@@ -46,4 +46,14 @@ test('mapping slide uses supplied counts after club and before community, and om
  assert.ok(index>0);assert.equal(slides[index-1].layout,'club');assert.equal(slides[index+1].layout,'global-intro');assert.ok(slides[index].body.includes('data-count="12"'));assert.ok(slides[index].body.includes('data-count="3"'));assert.ok(slides[index].note.includes('across all modes'));assert.equal(slides[index].preview,'https://b.ppy.sh/preview/123.mp3');assert.equal(slides[index].syncToPreview,true);
  data.mapping={status:'unavailable'};assert.ok(!experienceSlides(data).some(slide=>slide.layout==='mapping'));
  data.mapping={status:'ready',created:0,ranked:0};assert.ok(!experienceSlides(data).some(slide=>slide.layout==='mapping'));
+});
+
+test('mapping-only users can open Wrapped without score-based slides or consuming blocked-user state',()=>{
+ const data={...player(9922),sampleCount:0,top:[],mappers:[],artists:[],club:null,mapping:{status:'ready',created:2,ranked:0,totalPlays:400}};
+ assert.equal(canViewWrapped(data),true);
+ const slides=experienceSlides(data);assert.equal(slides[1].layout,'mapping');assert.equal(slides[2].layout,'global-intro');
+ assert.ok(!slides.some(slide=>['flow','plays','personal-mods','club','quiz'].includes(slide.layout)));
+ assert.ok(!slides.some(slide=>slide.eyebrow==='THE ONE TO REMEMBER'));
+ assert.match(slides.at(-1).note,/score-based sections are omitted/);
+ for(const mapping of [{status:'unavailable'},{status:'ready',created:0},{status:'ready',created:-1},{status:'ready',created:'2'}])assert.equal(canViewWrapped({...data,mapping}),false);
 });
