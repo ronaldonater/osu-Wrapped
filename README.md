@@ -1,9 +1,14 @@
 # osu! wrapped 2026
 
-**Version 1.1.26**
+**Version 1.1.27**
 
 A Netlify-ready fan app that turns an osu! profile into a 2026 review, an interactive slideshow, and a downloadable recap card. Supports osu!, osu!taiko, osu!catch, and osu!mania. The demo works without OAuth credentials. The dashboard and demo work without a database; community club percentages optionally use Neon.
 
+
+## v1.1.27 updates
+
+- Applied consistent smaller external-link arrows to slideshow links, including score, source, beatmap, and finale links.
+- Added a footer version indicator that reads directly from package.json and updates automatically with version bumps.
 
 ## v1.1.26 updates
 
@@ -359,3 +364,5 @@ Users with no eligible 2026 scores in the selected mode can still participate wh
 ## Mobile presentation
 
 Link arrows request Unicode text presentation to avoid iOS emoji substitution. The decorative landing-page asterisk uses SVG. Mobile quiz answer labels shrink from 15px toward 11px to fit approximately three lines; exceptionally long names can increase button height instead of overflowing. Fitting updates when the stage resizes or fonts finish loading. All-Rounder uses the same left-aligned legend layout as other clubs at widths up to 600px; its desktop card remains centered.
+
+The footer displays the app version directly from its package.json, so version bumps automatically update the visible indicator.
