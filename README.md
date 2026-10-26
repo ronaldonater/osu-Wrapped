@@ -1,9 +1,16 @@
 # osu! wrapped 2026
 
-**Version 1.1.28**
+**Version 1.1.29**
 
 A Netlify-ready fan app that turns an osu! profile into a 2026 review, an interactive slideshow, and a downloadable recap card. Supports osu!, osu!taiko, osu!catch, and osu!mania. The demo works without OAuth credentials. The dashboard and demo work without a database; community club percentages optionally use Neon.
 
+
+## v1.1.29 updates
+
+- Removed redundant inline playstyle-legend styles that triggered production Content Security Policy errors.
+- Smoothed the mobile OhnePixel panel entrance with thumbnail preloading and a lighter browser-driven animation; desktop behavior is unchanged.
+- Reduced quiz-answer sound latency with preloaded/decoded audio, a low-latency Web Audio path, and reusable fallback players.
+- Quiz sounds start before answer-display updates and retain mute and cleanup support.
 
 ## v1.1.28 updates
 
