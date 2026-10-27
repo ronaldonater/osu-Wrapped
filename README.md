@@ -1,9 +1,19 @@
 # osu! wrapped 2026
 
-**Version 1.1.29**
+**Version 1.1.31**
 
 A Netlify-ready fan app that turns an osu! profile into a 2026 review, an interactive slideshow, and a downloadable recap card. Supports osu!, osu!taiko, osu!catch, and osu!mania. The demo works without OAuth credentials. The dashboard and demo work without a database; community club percentages optionally use Neon.
 
+
+## v1.1.31 updates
+
+- Version-only maintenance release; no functional changes since v1.1.30.
+
+## v1.1.30 updates
+
+- Preload artist portraits and beatmap-background fallbacks before showing stats and opening the slideshow.
+- Preload and decode required personal and global mod icons, including demo and slideshow images.
+- Share cached image loads and use bounded waits so unavailable images do not block the experience indefinitely.
 
 ## v1.1.29 updates
 
