@@ -13,6 +13,12 @@ A Netlify-ready fan app that turns an osu! profile into a 2026 review, an intera
 - Compacted the recap averages grid and placed its explanatory note in the unused bottom-right space.
 - Fixed opening music continuity through the personal mods slide after inserting the averages slide.
 - Updated the Crowd Pleasers motto to "Someone's favorite started in your editor."
+- Added portrait/landscape recap selection, expandable zoomable previews, and click-outside dismissal for Share and Save panels.
+- Matched landscape card styling and metadata to portrait cards; refined spacing, alignment, footer coverage, and mapping presentation.
+- Added stable crossfades and moving format controls on the finale, plus a speaker-hover volume slider for music and sound effects.
+- Added combo counts and full-combo color highlights across personal/global stats and slides and personal recap cards.
+- Allowed the console easter egg to overlay dialogs and automatically pause/resume a playing slideshow.
+- Matched global list typography to the personal list and centered result stacks over Watch buttons.
 - No SQL migration or additional environment variables required.
 
 ## v1.1.31 updates
@@ -407,6 +413,8 @@ Running `secret()` in the browser console plays the bundled `wysi.mp3` clip and 
 
 The effect uses cached canvas sprites, a 30 FPS cap and at most 40 particles (12 with reduced motion). It ignores pointer input so the page stays usable. Audio ending or the 30-second safety limit triggers a 0.8-second fade before cleanup. Escape or hiding the tab stops it immediately; invoking the command again restarts it without stacking effects. Browser autoplay rules may require clicking the page before running the command. Reduced-motion settings reduce density, size variation and speed.
 
+The console easter egg uses the browser top layer above panels and the slideshow. A playing slideshow pauses until the effect finishes fading or is dismissed; an already paused slideshow stays paused. Re-running the effect keeps the slideshow paused until the replacement finishes. Escape dismisses the effect without closing the underlying panel.
+
 Sources: `src/secret.js` in the standalone app and `osu-wrapped/src/secret.js` in the website copy. Audio: `public/sounds/wysi.mp3` (standalone) and `osu-wrapped/sounds/wysi.mp3` (website). No new environment variables, external services, or SQL changes are needed. The footer version badge reads the app's package version automatically.
 
 ## Average beatmap statistics
@@ -419,16 +427,22 @@ Attribute enrichment is server-side, with four concurrent requests, a 3.5-second
 
 Beatmap averages also appear in a dedicated personal slideshow slide and a compact recap card grid. Metric coverage labels show the number of included scores. Mapping-only reviews omit these score-based sections.
 
-## Recap card layouts
+## Recap card layouts and sharing
 
-Recap cards support portrait and landscape PNG exports, including mapping-only reviews. Dashboard Save recap card and Share actions open a preview panel with a portrait/landscape choice before downloading, copying, or sharing. The finale slide has arrow controls to switch its preview between layouts; its Save and Share actions use the currently selected layout. Previews are reused within each open panel, and image actions wait for the selected card to finish rendering.
+Recap cards support portrait and landscape PNG exports, including mapping-only reviews. Dashboard Save recap card and Share actions open a preview panel with a portrait/landscape choice. Click the preview to expand it with zoom-in/out, fit reset, mouse-wheel zoom, dragging, double-click zoom, keyboard controls, and touch pinch/pan. Close the viewer to return to the chooser. Clicking outside the Share or Save panel closes it; clicks and drags inside do not.
 
-Landscape cards share the portrait design details: pink header glow and playcount tile, accuracy grade, source descriptors, month accent, mod artwork, framed primary/secondary club logos and reasons, shaded score-grade overlays, mapper/artist portraits with fallbacks, medal metadata, and a divided mapping club/upload showcase. The footer places the fan-project credit on the right.
+The finale has arrow controls to switch its preview between formats. Its Save and Share actions start with the selected format, and both panels allow changing it again. Cached previews are reused within each open panel; image actions wait for the selected card to finish rendering.
 
-The finale reserves a fixed preview area for portrait and landscape cards, retaining the current image while the next variant loads and crossfading after decoding. Switching layouts leaves the heading, controls, and heart decoration in place; reduced-motion skips the transition.
+The finale reserves a fixed preview area, keeps the current image visible while the next variant loads, and crossfades after decoding. Switching formats keeps the heading, buttons, and decorative heart in place. The format arrows and label animate to sit beneath the visible card. Reduced-motion skips these transitions.
 
-Slideshow audio includes a volume slider on speaker hover or keyboard focus/tap. It adjusts music and effects together, preserves their relative levels, and restores the last nonzero level when unmuting.
+Landscape cards share the portrait design details: pink header glow and playcount tile, accuracy grade, source descriptors, month accent, mod artwork, framed primary/secondary club logos and reasons, shaded score-grade overlays, mapper/artist portraits with fallbacks, medal metadata, and an aligned mapping club/upload showcase. Both layouts use compact spacing and aligned PP, accuracy/combo, and date rows. The landscape footer includes a SCORE COVERAGE heading and the fan-project credit centered within its right-hand area.
 
-Personal and global top-play lists display combo counts on the dashboard and slideshow; portrait and landscape recap cards also include personal play combos. Accuracy percentages and combo counts share a compact line. Confirmed full combos carry a lime highlight (dark green on light slides for contrast). Full-combo status follows explicit API flags rather than accuracy or rank; missing combo data remains unavailable.
+## Slideshow audio controls
 
-The console easter egg renders in the browser top layer above panels and the slideshow. A playing slideshow pauses for the effect and resumes after its fade or dismissal; an already paused slideshow stays paused. Re-running the effect keeps it paused until the replacement effect finishes.
+Hover over the speaker button or focus/tap it to reveal a volume slider aligned beneath the control-button group. It adjusts music and sound effects together while preserving their relative levels, including quiz sounds and fades. Click-to-mute remains available; unmuting restores the last nonzero volume.
+
+## Top-play combos and presentation
+
+Personal and global top-play lists show accuracy and combo together, such as `99.55% · 418×`, on stats pages and slides. Portrait and landscape recap cards also include personal play combos. Combo text matches the accuracy typography. Confirmed full combos use lime green without a visible FC suffix; light slides use a darker green for contrast, while featured personal/global score slides retain lime green over their artwork. Full-combo status follows explicit API flags, not accuracy or rank; missing combo data remains unavailable.
+
+The global dashboard top-play list matches personal-list typography. Global PP/accuracy/combo and popular-map play counts are centered above their respective Watch buttons.
