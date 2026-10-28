@@ -288,7 +288,7 @@ export function openExperience(data,{onSave,onReview}={}){
    introMotion.forEach(animation=>animation.pause());
   }
   if(slide.layout==='final'&&!reduced&&!paused){
-   introActive=true;shell.classList.add('story-animation-active');introEnd=13000;if(previewAudio){previewAudio.currentTime=0;previewAudio.loop=false;}
+   introActive=true;shell.classList.add('story-animation-active');introEnd=13000;if(previewAudio){previewAudio.currentTime=0;previewAudio.loop=true;}
    const finale=document.createElement('div');finale.className='story-intro story-finale';finale.innerHTML='<div class="story-finale-aura"></div><div class="story-finale-copy"><span>ONE MORE TRY.</span><strong>ONE UNFORGETTABLE YEAR.</strong><b>2026</b></div><div class="story-finale-curtain"></div>';shell.append(finale);
    const animate=(element,frames)=>introMotion.push(element.animate(frames,{duration:13000,fill:'both'}));
    animate(finale,[{opacity:1},{opacity:1,offset:.975},{opacity:0}]);
