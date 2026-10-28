@@ -1,9 +1,19 @@
 # osu! wrapped 2026
 
-**Version 1.1.31**
+**Version 1.1.32**
 
 A Netlify-ready fan app that turns an osu! profile into a 2026 review, an interactive slideshow, and a downloadable recap card. Supports osu!, osu!taiko, osu!catch, and osu!mania. The demo works without OAuth credentials. The dashboard and demo work without a database; community club percentages optionally use Neon.
 
+
+## v1.1.32 updates
+
+- Added average beatmap statistics to the stats page, a dedicated slideshow slide, and recap cards, with base and supported mod-adjusted values.
+- Ordered metrics as star rating, length, BPM, AR, OD, circle size/key count, and HP, with concise score counts and mode-appropriate fields.
+- Balanced incomplete slide rows, aligned the slide note beneath the final row, and added a subtle chart decoration.
+- Compacted the recap averages grid and placed its explanatory note in the unused bottom-right space.
+- Fixed opening music continuity through the personal mods slide after inserting the averages slide.
+- Updated the Crowd Pleasers motto to "Someone's favorite started in your editor."
+- No SQL migration or additional environment variables required.
 
 ## v1.1.31 updates
 
@@ -207,7 +217,7 @@ Year boundaries use UTC. Before January 1, 2027, this is a year-to-date review. 
 
 First successful sign-in automatically opens the story once per player and year in that browser. Replay Experience opens it again anytime. Seen state is stored in localStorage; another browser, cleared storage, or blocked storage can cause it to appear again.
 
-The full story includes up to 28 slides when both quizzes have enough candidates. Controls support pause/play, mute, previous/next, slide selection, swipe, and Escape. Reduced-motion starts paused and skips the animated opening sequences. Mobile uses lighter effects; desktop keeps the full animation treatment.
+The full story includes up to 29 slides when both quizzes have enough candidates. Controls support pause/play, mute, previous/next, slide selection, swipe, and Escape. Reduced-motion starts paused and skips the animated opening sequences. Mobile uses lighter effects; desktop keeps the full animation treatment.
 
 The opening uses cYsmix - Triangles and the finale uses nekodex - circles!. The top-play and artist slides use looping osu! beatmap previews where available. Quiz/mapper slides use the ambient loop credited to nekodex. The optional personal mapping slide plays the full preview of the most-played 2026 upload. Audio fades between sections and follows pause, visibility, and mute controls. Browsers may require pressing Play before allowing audio.
 
@@ -265,7 +275,7 @@ Independent fan project. Not affiliated with ppy or osu!. [osu! API documentatio
 
 ## Global stats
 
-The Your Stats / Global Stats selector preserves the selected gamemode. The full experience has up to **28 slides** when both quizzes have enough candidates.
+The Your Stats / Global Stats selector preserves the selected gamemode. The full experience has up to **29 slides** when both quizzes have enough candidates.
 
 Global panels include:
 
@@ -398,3 +408,27 @@ Running `secret()` in the browser console plays the bundled `wysi.mp3` clip and 
 The effect uses cached canvas sprites, a 30 FPS cap and at most 40 particles (12 with reduced motion). It ignores pointer input so the page stays usable. Audio ending or the 30-second safety limit triggers a 0.8-second fade before cleanup. Escape or hiding the tab stops it immediately; invoking the command again restarts it without stacking effects. Browser autoplay rules may require clicking the page before running the command. Reduced-motion settings reduce density, size variation and speed.
 
 Sources: `src/secret.js` in the standalone app and `osu-wrapped/src/secret.js` in the website copy. Audio: `public/sounds/wysi.mp3` (standalone) and `osu-wrapped/sounds/wysi.mp3` (website). No new environment variables, external services, or SQL changes are needed. The footer version badge reads the app's package version automatically.
+
+## Average beatmap statistics
+
+The personal dashboard includes unweighted mean star rating, total map duration (including breaks), BPM, AR, OD, CS/key count, and HP across all deduplicated eligible 2026 scores in the current top 200. Each metric shows base and mod-adjusted values with independent coverage counts. Missing or unsupported values are excluded, never replaced with zero. AR appears only for standard/catch, OD is omitted for catch, CS is omitted for taiko, and mania displays key count instead of circle size. Mapping-only users do not receive score averages.
+
+Supported fixed-rate DT/NC/HT/DC settings adjust BPM and duration. HR/EZ and Difficulty Adjust modify supported difficulty settings; standard OD and standard/catch AR include rate effects. Current mod-specific star ratings and available AR/OD attributes come from the official difficulty-attributes endpoint. No historical difficulty reconstruction is claimed. Variable-rate or unsupported mod settings can reduce adjusted coverage. Base and adjusted averages may cover different score subsets.
+
+Attribute enrichment is server-side, with four concurrent requests, a 3.5-second request budget, at most 24 uncached beatmap/mode/mod combinations per review, shared in-flight requests, and a 24-hour warm-instance success cache. Failures briefly cache and remain nonfatal; rate limiting stops further queued lookups in that batch. Further combinations can populate on later reviews. No database migration or new secrets are required. Demo metadata can have incomplete coverage; absent fields remain unavailable.
+
+Beatmap averages also appear in a dedicated personal slideshow slide and a compact recap card grid. Metric coverage labels show the number of included scores. Mapping-only reviews omit these score-based sections.
+
+## Recap card layouts
+
+Recap cards support portrait and landscape PNG exports, including mapping-only reviews. Dashboard Save recap card and Share actions open a preview panel with a portrait/landscape choice before downloading, copying, or sharing. The finale slide has arrow controls to switch its preview between layouts; its Save and Share actions use the currently selected layout. Previews are reused within each open panel, and image actions wait for the selected card to finish rendering.
+
+Landscape cards share the portrait design details: pink header glow and playcount tile, accuracy grade, source descriptors, month accent, mod artwork, framed primary/secondary club logos and reasons, shaded score-grade overlays, mapper/artist portraits with fallbacks, medal metadata, and a divided mapping club/upload showcase. The footer places the fan-project credit on the right.
+
+The finale reserves a fixed preview area for portrait and landscape cards, retaining the current image while the next variant loads and crossfading after decoding. Switching layouts leaves the heading, controls, and heart decoration in place; reduced-motion skips the transition.
+
+Slideshow audio includes a volume slider on speaker hover or keyboard focus/tap. It adjusts music and effects together, preserves their relative levels, and restores the last nonzero level when unmuting.
+
+Personal and global top-play lists display combo counts on the dashboard and slideshow; portrait and landscape recap cards also include personal play combos. Accuracy percentages and combo counts share a compact line. Confirmed full combos carry a lime highlight (dark green on light slides for contrast). Full-combo status follows explicit API flags rather than accuracy or rank; missing combo data remains unavailable.
+
+The console easter egg renders in the browser top layer above panels and the slideshow. A playing slideshow pauses for the effect and resumes after its fade or dismissal; an already paused slideshow stays paused. Re-running the effect keeps it paused until the replacement effect finishes.
