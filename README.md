@@ -1,610 +1,86 @@
-# osu! wrapped 2026
+# osu! Wrapped 2026
 
-**Version 1.1.39**
+**Version 1.1.40** | [Changelog](CHANGELOG.md) | [Detailed guide](docs/FEATURE-GUIDE.md)
 
-A Netlify-ready fan app that turns an osu! profile into a 2026 review, an interactive slideshow, and a downloadable recap card. Supports osu!, osu!taiko, osu!catch, and osu!mania. The demo works without OAuth credentials. The dashboard and demo work without a database; community club percentages optionally use Neon.
-
-
-## v1.1.39 updates
-
-- Added a persistent, duplicate-protected user/game-mode queue with a visible queue position, one active profile per client budget, resumable batches, fair batch yielding, and abandoned-job recovery.
-- Added encrypted cross-instance response caching and short-lived completed-review caching to reduce repeated upstream work. OAuth tokens and replay downloads are not saved.
-- Profile loading keeps required data hidden until ready, with detailed progress, automatic retries, and prompt continuation after successful enrichment batches instead of a fixed 60-second pause.
-- Neon outages fall back to the previous staged loader with local request pacing and osu! rate-limit cooldowns. Unavailable community percentages do not block Wrapped; global queue coordination resumes when storage recovers.
-- Bundled an October 29, 2026 demo snapshot for all four modes, including skillsets and global statistics, so demo opening, mode switching, and slideshow startup need no live data lookups or image preload waits.
-- Saved 336 demo image references locally for covers, avatars, and medal artwork, including slideshow and portrait/landscape recap exports. Added maintainer scripts to refresh demo data and images deliberately.
-- Live reviews reuse bundled beatmap backgrounds on an exact cover-URL match only. Unmatched covers, live avatars, artist portraits, and medals retain their normal loading paths; audio-preview fallback is preserved.
-- Skillset entries now link to their corresponding osu! beatmap search in a new tab.
-- Added mobile spacing between the selected-score badge and the average-beatmap cards.
-- Deployment: apply `scripts/sql/api-budget.sql` if not already installed and `scripts/sql/review-queue.sql` in the existing Neon database. Both are safe to rerun. No new secrets or community-table migrations are required for these queue changes.
-
-## v1.1.38 updates
-
-- Added community-voted skillset rankings for exact played difficulties to the dashboard, a conditional slideshow slide, and portrait/landscape recap cards, with score counts, percentages, and checked/tagged coverage.
-- The dashboard lists all available skillsets in a themed scroll area showing five entries initially; slides and recap cards keep the top five. Alternate displays as Alt. The skillset slide includes a subtle decorative pie chart.
-- Placed average beatmap and skillset panels side by side on desktop, aligned their split with surrounding panels and top statistic cards, compacted skillset rows, and aligned panel descriptions at the bottom. Mobile panels remain stacked.
-- Added Easy Tempo for HT/DC on at least 40% of selected scores, with 40-55 base strength, a rewind icon, and support throughout the existing club presentation and community tracking.
-- Expanded Afterdark to include FI and CO in osu!mania, and One Shot Society to include AC alongside SD/PF, retaining their existing thresholds and strength ranges.
-- Added owner-managed early-access admins with profile pictures, live add/remove controls, and automatic hiding of the Admin panel once the release is public.
-
-- Added a release countdown until November 29, 2026 at 00:00 UTC, with server-enforced pre-release restrictions and automatic public opening.
-- Added a subtle osu! admin sign-in link; early access is restricted to ronaldonater's verified account ID (7933825). Personal endpoints retain normal authentication after release.
-- Expanded playstyle clubs to 27 with Artist Loyalists, One-Map Wonders, Short & Sweet, Long Haul Club, and Modded Only; all support primary/secondary traits, the legend, slides, recap cards, and community tracking.
-- Rebalanced base strengths: mapper/artist/mapset loyalty and length clubs 55-80, Modded Only 60, accuracy clubs 65-90, and Choke Artists 70-95.
-- Length clubs use mod-adjusted durations: 60% at <=1:30 for Short & Sweet or >=3:30 for Long Haul Club, with at least five selected scores.
-- Sorted the legend by general strength ranges while keeping All-Rounder last, and refreshed the mapper, mapset, and long-map artwork.
-- Existing Neon databases must apply `scripts/sql/club-community-v13.sql` before deployment. This cumulative migration preserves existing rows. Current assignment rules: `2026-v27`. The countdown itself requires no new SQL or environment variables.
-- Validation: 188 standalone tests and 210 website tests pass; the standalone production build passes.
-
-## v1.1.37 updates
-
-- Stabilized recap zoom sizing to prevent scrollbar-related jumps, especially with landscape cards.
-- Themed the recap viewer's horizontal and vertical scrollbars to match the dark panels.
-- Centered the landscape most-active-month count and caption together within the right-hand section.
-
-## v1.1.36 updates
-
-- Enlarged the primary playstyle club in landscape recap cards when no secondary archetype is available, with a left-aligned layout.
-- Centered the final unpaired average-beatmap metric on the mobile stats page.
-
-## v1.1.35 updates
-
-- Applied Aller Bold only to the footer's osu! wordmark.
-- Set the wordmark to an exact 18px size and adjusted its letter spacing to balance it with the existing Wrapped text.
-
-## v1.1.34 updates
-
-- Fixed live recap previews by permitting generated blob image URLs in the production image security policy.
-- Wait for preview images to decode before enabling image actions or reporting that a card is ready.
-- Clean up unused preview URLs when formats change or panels close, and show an error if the image cannot load.
-- Added a production-policy regression check; no SQL or environment-variable changes required.
-
-## v1.1.33 updates
-
-- Added portrait/landscape recap selection, expandable zoomable previews, and click-outside dismissal for Share and Save panels.
-- Refined landscape styling, card spacing, grade alignment, mapping showcase placement, and score-coverage footer.
-- Added stable finale preview transitions with format controls that follow the card; both panels allow changing formats.
-- Added a speaker-hover volume slider for slideshow music and sound effects, preserving mute state and relative audio levels.
-- Added inline accuracy/combo displays and full-combo color highlights, with consistent global/personal list typography.
-- Promoted the console easter egg above dialogs and automatically pause/resume a playing slideshow during the effect.
-- Made the closing song loop consistently on the final slide.
-- Allowed generated blob image previews in the production image security policy and wait for preview decoding before enabling image actions.
-- No SQL migration or additional environment variables required.
-
-## v1.1.32 updates
-
-- Added average beatmap statistics to the stats page, a dedicated slideshow slide, and recap cards, with base and supported mod-adjusted values.
-- Ordered metrics as star rating, length, BPM, AR, OD, circle size/key count, and HP, with concise score counts and mode-appropriate fields.
-- Balanced incomplete slide rows, aligned the slide note beneath the final row, and added a subtle chart decoration.
-- Compacted the recap averages grid and placed its explanatory note in the unused bottom-right space.
-- Fixed opening music continuity through the personal mods slide after inserting the averages slide.
-- Updated the Crowd Pleasers motto to "Someone's favorite started in your editor."
-- Added portrait/landscape recap selection, expandable zoomable previews, and click-outside dismissal for Share and Save panels.
-- Matched landscape card styling and metadata to portrait cards; refined spacing, alignment, footer coverage, and mapping presentation.
-- Added stable crossfades and moving format controls on the finale, plus a speaker-hover volume slider for music and sound effects.
-- Added combo counts and full-combo color highlights across personal/global stats and slides and personal recap cards.
-- Allowed the console easter egg to overlay dialogs and automatically pause/resume a playing slideshow.
-- Matched global list typography to the personal list and centered result stacks over Watch buttons.
-- No SQL migration or additional environment variables required.
-
-## v1.1.31 updates
-
-- Version-only maintenance release; no functional changes since v1.1.30.
-
-## v1.1.30 updates
-
-- Preload artist portraits and beatmap-background fallbacks before showing stats and opening the slideshow.
-- Preload and decode required personal and global mod icons, including demo and slideshow images.
-- Share cached image loads and use bounded waits so unavailable images do not block the experience indefinitely.
-
-## v1.1.29 updates
-
-- Removed redundant inline playstyle-legend styles that triggered production Content Security Policy errors.
-- Smoothed the mobile OhnePixel panel entrance with thumbnail preloading and a lighter browser-driven animation; desktop behavior is unchanged.
-- Reduced quiz-answer sound latency with preloaded/decoded audio, a low-latency Web Audio path, and reusable fallback players.
-- Quiz sounds start before answer-display updates and retain mute and cleanup support.
-
-## v1.1.28 updates
-
-- Added the hidden `secret()` browser-console Easter egg with supplied WYSI audio and falling pointing emojis / 727 text.
-- Optimized the effect with cached sprites, a 30 FPS cap, lower-resolution rendering and a limited particle count.
-- Added an automatic fade-out, Escape cancellation, tab-visibility cleanup, and clean restarts.
-- Added playful console messages and credited Aireu under Music & sound.
-
-## v1.1.27 updates
-
-- Applied consistent smaller external-link arrows to slideshow links, including score, source, beatmap, and finale links.
-- Added a footer version indicator that reads directly from package.json and updates automatically with version bumps.
-
-## v1.1.26 updates
-
-- Reduced mobile stat-card arrow sizes and standardized their font to better match desktop.
-- Updated README mobile presentation details and corrected slideshow/audio wording in the website setup guide.
-
-## v1.1.25 updates
-
-- Prevent iOS emoji substitution for link arrows and replace the decorative asterisk with SVG.
-- Adapt long mobile quiz labels to their button width, allowing taller buttons for exceptional names.
-- Match the All-Rounder legend card to the other cards on mobile while retaining its centered desktop layout.
-
-## v1.1.24 updates
-
-- Renamed HR Headquarters to Hardrock Headquarters and added a rock-hand logo.
-- Refreshed Lazer Pioneers, Close Enough Club, Class of 2026, Crowd Favorites, Choke Artists, and Ranked Debut icons.
-- Renamed Community Soundtrack to Crowd Pleasers with a cheering-crowd logo.
-- Shared artwork updates apply across the dashboard, legend, slideshow, and recap. No SQL changes are required.
-
-## v1.1.23 updates
-
-- Added a subtle animated rainbow outline to the current mapping club label in the legend.
-- The outline rotates on a nine-second loop and remains static when reduced motion is enabled.
-
-## v1.1.22 updates
-
-- Changed the decorative landing-page hit circle from 2 to 1.
-
-## v1.1.21 updates
-
-- Allow users with eligible 2026 uploads and no eligible scores to access mapping-only Wrapped.
-- Add a focused mapping dashboard, slideshow path, and dedicated recap without empty score-based sections.
-- Tighten mapping recap spacing and frame the mapping club logo to match the dashboard.
-- Users with neither eligible scores nor uploads remain blocked. No database migration is required.
-
-## v1.1.20 updates
-
-- Fixed mapping club colors on the live website by replacing inline styles with CSP-safe CSS classes.
-- Badges, legend entries, and community percentages now use consistent club accent colors without changing the security policy.
-
-## v1.1.19 updates
-
-- Added six independent mapping clubs with qualification criteria, shared vector logos, and a themed legend panel.
-- Added mapping community percentages backed by a separate Neon table, counting each mapper once across all game modes.
-- Refined mapping club cards and recap exports, including the club logo, motto, criteria, and most-played 2026 upload.
-- Omit mapping sections from the slideshow and recap when no eligible 2026 uploads exist.
-- Added Replay Society as a primary or secondary playstyle club, with a logarithmic strength scale based on replay views received in 2026.
-- Improved club legend descriptions, consistent accent colors, and mapping button styling.
-- Deployment: existing databases must run `scripts/sql/club-community-v13.sql` for the current playstyle clubs and `scripts/sql/mapping-community.sql` for mapping tracking. Existing Netlify database variables are reused.
-
-## v1.1.18 updates
-
-- Added a blueprint-themed mapping panel at the bottom of personal stats. It counts hosted mapsets first submitted in 2026 (UTC), the currently ranked subset, and combined all-time plays on those mapsets across all modes.
-- Added a mapping slide after the club reveal. It showcases the most-played 2026 submission with cover artwork, title, artist, lifetime playcount, and a mapset link, and plays its complete audio preview. The slide is skipped when there are no qualifying mapsets or mapping data is unavailable.
-- Recap cards include mapping counts and grow to fit the added section. Medal artwork now retains its original aspect ratio.
-- Artist photos fall back to a matching beatmap background on the dashboard, slideshow, and recap card, then to an initial if both images fail.
-- Mapping data uses paginated osu! profile catalogues with a 15-minute cache. Incomplete or failed fetches show unavailable. Upload counters need no database; community tracking requires the SQL setup described below. No new OAuth scopes are required.
-- Replaced the elongated dash in the recap card date range with a regular hyphen.
-- Standardized the website introduction credit to lowercase `ronaldonater`.
-- On desktop, the five visible genre rows expand to fill the space beside the mod rankings, with remaining genres scrollable. Mobile retains compact rows.
-- Genre rankings now cover all currently ranked mapsets with a 2026 ranked date in the selected native gamemode, instead of only the 25 most-played mapsets. Each unique mapset counts once; missing genre metadata is counted as Unknown genre.
-- The global genre panel lists every genre in a keyboard-accessible scroll list with five entries visible initially. The slideshow shows only the top five genres.
-- The genre slide appears immediately after "New patterns. More ways to play." (the total mapsets ranked in 2026 slide).
-- Genre counts and percentages refresh through the existing daily ranked-catalogue GitHub Actions workflow. No new secrets or workflow settings are required; the refreshed snapshot is included.
-- Centered the full-width All-Rounder legend heading and simplified the One Shot Society requirement wording.
-- Added One Shot Society for SD/PF players: at least 40% of selected scores, with a 40-55 base strength and support as a primary or secondary club.
-- Community tracking supports 26 playstyle clubs under assignment rules `2026-v27`. Existing databases use `scripts/sql/club-community-v13.sql`; fresh databases use `scripts/sql/club-community.sql`. Mapping tracking uses its own SQL table.
-- Personal Wrapped requires an eligible 2026 score from the selected mode's current top 200 or a hosted mapset first submitted in 2026. Users with uploads but no scores receive mapping-only Wrapped; users with neither see an explanation and can switch modes.
-- Slides automatically scale to fit the available screen space while playback and navigation controls remain full-size.
-- Keyboard arrow navigation survives slide content changes without requiring another click, and yields to other open panels.
-- Removed the arrow from the “Click the play to view score” hint.
-- All 27 clubs can be primary or secondary. Every qualifying signal is ranked; the strongest becomes primary and the next distinct match becomes secondary.
-- Evidence weighting reduces the influence of small samples. One selected score remains eligible; reviews with fewer than 20 selected scores display a provisional note. Score-based signals reach full weight at 20 evidence scores, using valid passed scores for accuracy. Activity signals reach full weight at six available months.
-- Mapper Loyalists requires three matching scores across at least two distinct mapsets. Balanced All-Rounder considers mod, mapper, and artist variety rather than mods alone.
-- The legend displays personal Match strength in the top-right, separately from community primary-club percentages anchored at the bottom. Selected scores are defined once in the panel.
-- Recap cards, story slides, and the dashboard support any secondary club with its own emblem, color, and explanation.
-- The provisional club slide uses tighter spacing. The medal card has centered content, a framed medal, and a subtle glow.
-
-### Current base strength ranges
-
-| Signal | Base strength |
-| --- | --- |
-| High / low accuracy | 65-90 |
-| Map age / popular maps | 68-96 |
-| Mapper Loyalists / Artist Loyalists / One-Map Wonders | 55-80 |
-| Short & Sweet / Long Haul Club | 55-80 |
-| Modded Only | 60 |
-| The Wanderers | 60-85 |
-| Balanced All-Rounder | 60-80 |
-| The Repeat Offenders | 55-80 |
-| Quality Over Quantity | 55-80 |
-| Replay Society | 55-80 (logarithmic replay views received) |
-| Choke Artists | 70-95 |
-| Stable Loyalists / Lazer Pioneers | 62 |
-| Mod preferences | 40-55 |
-| Fallback All-Rounder | 0 |
-
-These are base weights, not probabilities. Actual Match strength applies evidence weighting. Qualification thresholds are unchanged unless described above. Exact ties use evidence coverage, then a deterministic order. Community percentages count primary clubs only.
-
-Current assignment rules: `2026-v27`. Existing databases must apply `scripts/sql/club-community-v13.sql` before deployment. Fresh databases use `scripts/sql/club-community.sql`. Mapping tracking additionally requires `scripts/sql/mapping-community.sql`. Returning participants refresh their assignment; keep the database credentials and tracking secret unchanged.
+An independent fan app that turns your osu! profile into a 2026 review, an interactive slideshow, and shareable recap cards. Supports osu!, osu!taiko, osu!catch, and osu!mania.
 
 ## Features
 
-- Responsive stats dashboard with monthly activity, average accuracy and its letter grade, highest combo, medals unlocked, and replay views.
-- Favorite Mod with official colored SVG icons, visible score percentages, a clickable full mod breakdown, a personal mod rankings slide, and tie handling. Individual mods are counted separately, CL is excluded, and CL-only or unmodded scores count as No Mod.
-- Top 25 selected PP scores with artwork, grades, dates, mapper credits, exact PP tooltips, score links, and replay viewing where available.
-- Top mapper and artist rankings with profile pictures where available. Artist pictures use TheAudioDB, falling back to a matching beatmap background and then initials.
-- Rarest medal earned in 2026, including artwork, award date, and a current Osekai rarity estimate. Visible percentages truncate to two decimal places; the full value is available on hover.
-- An interactive story with music, song previews, animated intro and finale, mapper/artist guessing games, and sound effects.
-- Twenty-one playstyle clubs with a legend panel, animated reveal, and primary/secondary archetypes on the recap card.
-- Global PP, popular mapset, mod, genre, and mapper rankings with mode-aware links and embedded viewers.
-- PNG recap export, JSON export, recap preview, and a share panel with Twitter/X and Bluesky links, an editable message, image/message copying, downloads, and native file sharing where supported.
-
-The initial mode follows the user's preferred mode on osu!. Users can switch modes manually.
+- Personal activity, top plays, mods, mappers, artists, medals, average beatmap statistics, and community-tagged skillsets.
+- Playstyle and mapping clubs with explanations, primary/secondary traits, and optional community percentages.
+- Personal mapping statistics and mapping-only Wrapped for eligible uploaders without eligible scores.
+- Global score, popular-map, mod, genre, and mapper rankings with replay and beatmap viewers.
+- Animated, music-backed slideshow and portrait/landscape recap cards with sharing, image zoom, downloads, and JSON export.
+- A bundled demo for all four modes, with saved statistics and 336 image references. Demo data opens without OAuth, Neon, or the profile queue; song previews still stream.
+- Persistent profile queuing, resumable loading, shared encrypted caching, and automatic retries when Neon is configured.
 
 ## Run locally
 
 Use Node.js 22 or newer.
 
-~~~sh
+```sh
 npm install
 npm run dev
-~~~
+```
 
-This starts the frontend and demo at http://localhost:5173. OAuth and backend routes require the full local runner:
+Open [localhost:5173](http://localhost:5173) for the frontend and demo. For OAuth and backend routes:
 
-1. Copy .env.example to .env.
+1. Copy [.env.example](.env.example) to an uncommitted `.env`.
 2. Create an osu! OAuth application in [osu! account settings](https://osu.ppy.sh/home/account/edit).
-3. Register http://localhost:8888/api/auth/callback as its callback.
-4. Set OSU_CLIENT_ID, OSU_CLIENT_SECRET, OSU_REDIRECT_URI, and SESSION_SECRET in .env. The redirect URI must exactly match the registered callback.
-5. Run npm run dev:netlify and open http://localhost:8888.
+3. Register `http://localhost:8888/api/auth/callback` as its callback.
+4. Set `OSU_CLIENT_ID`, `OSU_CLIENT_SECRET`, `OSU_REDIRECT_URI`, and `SESSION_SECRET`. The redirect URI must match the registered callback exactly.
+5. Run `npm run dev:netlify` and open [localhost:8888](http://localhost:8888).
 
 Generate a session secret with:
 
-~~~sh
+```sh
 node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
-~~~
+```
 
-Keep .env private and never prefix backend secrets with VITE_. Backend modules reload through the local runner; restart it after changing environment variables. Frontend edits reload through Vite.
-
-The local runner uses scripts/dev.mjs to serve Vite and the actual Fetch API function. It bypasses a Netlify CLI proxy compatibility issue, but does not emulate deployed security headers or distributed rate limits.
+Keep credentials on the backend. Never commit `.env` or expose secrets through `VITE_` variables.
 
 ## Deploy to Netlify
 
-1. Import this repository in Netlify. The included netlify.toml defines the build, functions, redirects, and security headers.
-2. Register https://YOUR-DOMAIN/api/auth/callback in your osu! OAuth client.
-3. Set OSU_CLIENT_ID, OSU_CLIENT_SECRET, OSU_REDIRECT_URI, and SESSION_SECRET in Netlify, available to Functions.
-4. Deploy or redeploy, then verify sign-in, mode switching, exports, and sign-out on your actual domain.
+Import the complete repository; [netlify.toml](netlify.toml) supplies the build, Functions, redirects, and headers. Configure the same four private environment variables for Functions, register your production `/api/auth/callback` URL, and redeploy. Verify sign-in, slideshow audio, recap exports, and sign-out on the deployed domain.
 
-Deploy the full project, rather than uploading only dist: OAuth and image/replay routes require Netlify Functions. TheAudioDB and Osekai integrations need no additional environment variables.
+The release gate opens November 29, 2026 at 00:00 UTC. Before release, the owner and approved admins can sign in early. Personal endpoints remain authenticated after release.
 
-The personal website integration uses /osu-wrapped/ and /api/osu-wrapped/, with WRAPPED_OSU_CLIENT_ID, WRAPPED_OSU_CLIENT_SECRET, WRAPPED_OSU_REDIRECT_URI, and WRAPPED_SESSION_SECRET. Its production callback is https://ronaldonater.com/api/osu-wrapped/auth/callback. See the website repository's docs/OSU-WRAPPED-SETUP.md for that deployment.
+### Optional Neon setup
 
-## Data scope
+Set private `DATABASE_URL` and `CLUB_TRACKING_SECRET` variables, then apply the scripts relevant to your installation:
 
-Each review requests up to 200 current best scores for the selected mode, using two pages of 100, then filters and deduplicates scores dated in 2026. Recent scores are not fetched. This is a sample of current best scores, not a complete historical archive of the user's year.
-
-| Stat | Calculation |
+| Purpose | SQL script |
 | --- | --- |
-| Plays | Sum of available 2026 monthly profile counts, across modes. |
-| Average accuracy | Unweighted average of passed scores in the selected 2026 sample. |
-| Accuracy grade | SS: 100%; S: 95% to below 100%; A: 90% to below 95%; B: 85% to below 90%; C: 70% to below 85%; D: below 70%. Calculated from the unrounded average. |
-| Highest combo | Maximum combo among sampled passed 2026 scores, linked to its source score. |
-| Top PP plays | Up to 25 passed scores sorted by PP from the selected 2026 sample. |
-| Favorite Mod | Most common individual mod in the deduplicated 2026 sample. Each mod counts once per score; ties are shown. CL is excluded. |
-| Mappers and artists | Top 10 by score count in the selected sample. Mapper credits use the mapset creator and may differ from the guest difficulty's creator. |
-| Medals unlocked | Profile achievements with a 2026 award timestamp, across modes. |
-| Rarest medal | Lowest available Osekai ownership percentage among medals earned in 2026. Incomplete matches are labeled accordingly. |
-| Replay views | Sum of valid available 2026 monthly views received on the user's replays by others, across modes. |
+| Fresh playstyle community database | [club-community.sql](scripts/sql/club-community.sql) |
+| Upgrade an existing playstyle community database | [club-community-v13.sql](scripts/sql/club-community-v13.sql) |
+| Mapping community percentages | [mapping-community.sql](scripts/sql/mapping-community.sql) |
+| Shared osu! API pacing | [api-budget.sql](scripts/sql/api-budget.sql) |
+| Persistent profile queue and shared cache | [review-queue.sql](scripts/sql/review-queue.sql) |
+| Early-access admin management | [admin-allowlist.sql](scripts/sql/admin-allowlist.sql) |
 
-Year boundaries use UTC. Before January 1, 2027, this is a year-to-date review. Missing data is shown as unavailable. Demo scores and counts are fictional. Current best scores can displace earlier plays, and profile history may be incomplete.
+Run these in the existing Neon database before deploying the corresponding feature. No database is needed for the demo. See [community setup](docs/CLUB-COMMUNITY.md) and the [queue/cache guide](docs/FEATURE-GUIDE.md#persistent-profile-queue-and-shared-cache) for configuration, expiry, and cleanup details.
 
-## Slideshow and audio
+If Neon becomes unavailable, profiles fall back to the previous staged loader and community percentages show as unavailable. Local request pacing and rate-limit cooldowns continue, but cross-instance coordination is unavailable during the outage.
 
-First successful sign-in automatically opens the story once per player and year in that browser. Replay Experience opens it again anytime. Seen state is stored in localStorage; another browser, cleared storage, or blocked storage can cause it to appear again.
+## Data scope and privacy
 
-The full story includes up to 29 slides when both quizzes have enough candidates. Controls support pause/play, mute, previous/next, slide selection, swipe, and Escape. Reduced-motion starts paused and skips the animated opening sequences. Mobile uses lighter effects; desktop keeps the full animation treatment.
+Score-based statistics use deduplicated 2026 scores found in the selected mode's **current top 200 best plays**, not a complete annual score archive. Monthly activity and medal history are profile-wide. Personal uploads use hosted mapsets first submitted in 2026; ranked status and playcounts are current. Skillset tags describe map patterns, not measured proficiency.
 
-The opening uses cYsmix - Triangles and the finale uses nekodex - circles!. The top-play and artist slides use looping osu! beatmap previews where available. Quiz/mapper slides use the ambient loop credited to nekodex. The optional personal mapping slide plays the full preview of the most-played 2026 upload. Audio fades between sections and follows pause, visibility, and mute controls. Browsers may require pressing Play before allowing audio.
+A personal review requires at least one eligible score or eligible 2026 upload. Required review data finishes loading before the profile is displayed. Confirmed missing data and supported image fallbacks count as completed results.
 
-Navigating to another slide while paused immediately shows its completed counters, grades, club reveal, and contextual panels. Skipped entrance sound effects do not replay when playback resumes. Pausing an animation already in progress preserves its current state.
+OAuth credentials stay on the server; sessions use encrypted HttpOnly cookies. With Neon configured, pseudonymous club assignments and temporary encrypted response/review caches are stored for tracking and loading. Access tokens and replay files are not stored in the database. See the [security review](docs/SECURITY-REVIEW.md) and [detailed guide](docs/FEATURE-GUIDE.md).
 
-Saving a recap keeps the slideshow open. Opening its share panel pauses playback and resumes it on close only if the panel caused that pause. Close, Done, and Escape use the closing sound and fade.
+## Checks and maintenance
 
-## Sharing and replay viewing
-
-Twitter/X and Bluesky share links prefill the message, including the app link, but do not automatically attach the card. Users can copy the PNG, download it, or use the device share sheet where supported. Clipboard and native sharing depend on browser permissions and support.
-
-Watch replay opens a sandboxed [ReplayViewer](https://www.replayviewer.com/) panel. The backend verifies the signed-in user's score ownership before downloading a replay. Only replay bytes are sent to the viewer; the osu! token is not. Replays are not permanently stored, downloads are limited to 4 MiB, and closing the panel aborts pending requests. Missing replays, upstream quotas, and viewer mod support can limit playback.
-
-## External artwork and rarity
-
-- [TheAudioDB](https://www.theaudiodb.com/free_music_api): exact-name artist lookups using its shared free key. Results use bounded image downloads, browser/CDN caching, and a small warm-instance cache. Free API limits and missing artwork can result in initials. The local request guard is per function instance, not a global traffic guarantee. See [artist image notes](docs/ARTIST-IMAGES.md).
-- [Osekai](https://osekai.net/): medal metadata and current rarity estimates, cached for 24 hours per warm instance. These are estimates from Osekai's tracked population, not official global statistics or rarity at award time. See [medal rarity notes](docs/MEDAL-RARITY.md).
-- Official osu! mod SVGs are bundled locally with category colors. Source and upstream licence are included in public/images/mods/.
-
-Artwork and data attribution are included in the UI and exported card. External images/previews require network access; demo data itself does not require OAuth.
-
-## Checks and source layout
-
-~~~sh
+```sh
 npm test
 npm run build
-~~~
+```
 
-The build outputs dist. Tests cover aggregation, preferred modes, mod counts, medal selection, artwork validation and caching, replay authorization, OAuth, and session security.
+Demo refresh scripts, ranked-catalogue updates, source layout, audio behavior, and detailed stat calculations are documented in the [feature and operations guide](docs/FEATURE-GUIDE.md). Release history lives in [CHANGELOG.md](CHANGELOG.md).
 
-| Path | Purpose |
-| --- | --- |
-| src/main.js, src/style.css | Dashboard and responsive UI |
-| src/summary.js, src/mods.js, src/accuracy.js | Score aggregation and stat calculations |
-| src/experience.js | Interactive story and audio |
-| src/recap.js, src/share.js | PNG generation and sharing |
-| src/replay.js, src/beatmap-viewer.js | Embedded replay and beatmap viewers |
-| src/clubs.js, src/mod-breakdown.js | Club assignment, legend, and personal mod rankings |
-| src/mapping.js, src/mapping-clubs.js | Personal uploads, mapping clubs, and mapping legend |
-| netlify/functions/lib/mapping-stats.mjs, netlify/functions/lib/mapping-community.mjs | Upload catalogue and separate mapping tracking |
-| src/global.js | Global rankings and mode-aware genre/mapset links |
-| src/medals.js, src/mod-icons.js | Medal display and local mod artwork |
-| netlify/functions/api.mjs | Netlify Fetch API entrypoint |
-| netlify/functions/lib/ | OAuth, security, artwork, and rarity services |
-| tests/ | Automated regression checks |
+## Credits
 
-## Security and verification
+Data and assets come from osu! / ppy, beatmap creators, Osekai, and TheAudioDB. Music and sound credits include cYsmix, nekodex, pola[r]is, and Aireu. ReplayViewer and JoSu provide embedded viewers.
 
-OAuth requests identify public. Sessions are encrypted with AES-256-GCM and stored in HttpOnly, SameSite=Lax cookies, with Secure on HTTPS. No refresh token is stored; sign in again when the session expires. Private OAuth credentials stay on the backend. Signing out clears the session; access can also be revoked in osu! account settings.
-
-Replay files are not stored in the database. With Neon configured, the app stores pseudonymous club assignments plus temporary encrypted profile responses and completed reviews for the persistent loading queue. See the profile queue section for expiry and cleanup. Third-party artist and rarity data is cached as described above. Exported files are controlled by the user. Verify real OAuth, browser audio, sharing, and replay playback on the deployed site before release. See the [security review](docs/SECURITY-REVIEW.md) for remaining deployment checks.
-
-Independent fan project. Not affiliated with ppy or osu!. [osu! API documentation](https://osu.ppy.sh/docs/).
-
-
-## Global stats
-
-The Your Stats / Global Stats selector preserves the selected gamemode. The full experience has up to **29 slides** when both quizzes have enough candidates.
-
-Global panels include:
-
-- Up to 25 recorded 2026 PP plays from the current official top 1,000, plus player appearance rankings.
-- The 25 most-played mapsets ranked in 2026, ordered by lifetime mapset plays. Links open the most-played native difficulty for the selected mode.
-- Individual mod usage across the global top 25 PP plays, showing counts and percentages. CL is excluded and ties share a rank.
-- All genres across all currently ranked mapsets with a 2026 ranked date in the selected native mode, counting each set once. The scroll list initially displays five entries; the story shows the top five immediately after the ranked-mapset-total slide. Missing metadata is Unknown genre. Links preserve the selected mode.
-- Ranked mapper totals and the number of unique mapsets ranked in 2026, from the catalogue snapshot described below.
-
-Community slides also show approximate new accounts, peak concurrent users with OhnePixel context, and over 1.7 billion ranked plays submitted. These community figures are separate from the selected-mode score sample; source and coverage notes appear on their slides. Restriction counts are not included.
-
-The global backend scans up to ten official ranking pages until it finds 25 eligible unique 2026 plays. Only the highest-PP play per player and difficulty is retained. This is not a complete annual archive. Results are cached for 15 minutes per warm instance; upstream failures preserve personal stats and may return stale cached results. Popular-mapset searches use the existing osu! application's public client credentials, with no additional service account or database.
-
-### Beatmap and replay panels
-
-Watch beatmap opens the embedded [JoSu beatmap viewer](https://preview.tryz.id.vn/), using the most-played native difficulty for the selected mode. Buttons are enabled for all four modes; viewer support can vary. Global Watch replay verifies that the requested score belongs to the returned global top 25 before downloading it for the signed-in user. Personal replay downloads still require score ownership. Tokens are never sent to either viewer.
-
-### Ranked mapper leaderboard
-
-Global stats includes the top ten mapset hosts by unique currently ranked sets with a 2026 ranked date (UTC), filtered to native gamemodes. Each set counts once per matching mode, with guest difficulties excluded as separate credits. Ties share rank and are ordered by name. The UI displays snapshot time and catalogue coverage.
-
-Refresh locally with `node scripts/update-ranked-mappers.mjs`. The script uses existing osu! app credentials from the environment or `.env`, scans the complete catalogue with cursor pagination and rate limiting, and replaces the snapshot only on successful completion.
-
-The `Refresh ranked mapper leaderboard` GitHub Actions workflow refreshes daily at 08:23 UTC and supports manual runs. Add repository Actions secrets `OSU_CLIENT_ID` and `OSU_CLIENT_SECRET` (use the existing Wrapped app credentials) and allow Actions to write repository contents. Push the workflow and snapshot to the default branch to enable scheduled runs. Deploy the updated snapshot to publish refreshed counts.
-
-### Playstyle clubs
-
-One available 2026 score is enough to receive a club. The 27 clubs are:
-
-| Club | Qualifying signal |
-| --- | --- |
-| Overdrive | DT or NC on at least 40% of selected scores. |
-| Hardrock Headquarters | HR on at least 40%; excluded as a defining club for mania. |
-| Easy Tempo | HT or DC on at least 40% of selected scores; 40-55 base strength. |
-| Afterdark | HD or FL (also FI or CO in osu!mania) on at least 50%. |
-| No Mod, No Problem | Unmodified scores on at least 60%. |
-| Precision Society | At least ten passed scores averaging 99% in osu!/taiko, 99.5% in catch, or 98% in mania. |
-| The Repeat Offenders | At least 10,000 recorded 2026 plays and six months with at least 500 plays each. |
-| Mapper Loyalists | At least 25% under one host, with three matching scores across two distinct mapsets. |
-| The Wanderers | At least ten distinct hosts and ten artists; each unique-name count is at least half the score count. |
-| EZ Does It | EZ on at least 40% of selected scores. |
-| Close Enough Club | At least ten passed scores below 90% mean accuracy (95% in catch); competes by strength. |
-| Safety Net Society | SO/NF on at least 50% (NF only outside osu!); no inference of deranking intent. |
-| Quality Over Quantity | 1-99 recorded 2026 profile plays across available months (all modes); competes by strength with other qualifying signals. |
-| Time Capsule | At least 60% of all eligible 2026 scores in the current top 200 are on mapsets ranked in 2016 or earlier; at least five scores. |
-| Class of 2026 | At least 60% of all eligible 2026 scores in the current top 200 are on mapsets ranked in 2026; at least five scores. |
-| Crowd Favorites | At least 40% of all eligible 2026 scores in the current top 200 overlap the selected mode’s popular 2026 top 25 mapsets, spanning at least three distinct sets and five eligible scores. |
-| Stable Loyalists | 100% confirmed osu!stable scores in the eligible 2026 top-200 sample. |
-| Lazer Pioneers | 100% confirmed osu!lazer scores in the eligible 2026 top-200 sample. |
-| One Shot Society | SD, PF or AC on at least 40% of selected scores. |
-| Choke Artists | At least five selected scores, three qualifying passes and a 30% share: exactly one miss, or standard passes with no misses and exactly one reported slider combo-break event. |
-| Replay Society | At least 500 replay views received by others in available 2026 monthly history across modes. |
-| Artist Loyalists | At least 25% for one artist, with three matching scores across two distinct mapsets. |
-| One-Map Wonders | At least 25% from one mapset, across at least three distinct beatmap difficulties. |
-| Short & Sweet | At least 60% on maps <=1:30 after mods; at least five selected scores. |
-| Long Haul Club | At least 60% on maps >=3:30 after mods; at least five selected scores. |
-| Modded Only | Every selected score uses at least one gameplay mod, with zero No Mod scores. |
-| All-Rounder | At least three mod combinations, five hosts and five artists, with every mod family below 40%; also the fallback when no signal qualifies. |
-
-All qualifying signals are ranked by strength rather than by first-match priority. Every club can be primary or secondary; the top two distinct matches are selected. Client exclusivity and playcount no longer automatically override stronger playstyle signals. All-Rounder can represent a balanced mod mix and remains the fallback. See the club ranking guide for weights, thresholds, and tie-breaking. These are playful descriptions of available data, not complete play histories.
-
-Every qualifying club is eligible for either role: the strongest signal becomes primary and the next distinct match becomes secondary. The precision-only badge has been replaced by the generic secondary archetype. The dashboard opens a scrollable legend of all 27 clubs with the current club highlighted. The story uses a click-triggered evolution reveal with sound effects; text selection is disabled until the entrance animations finish. Reduced motion and mute are supported.
-
-Recap PNGs include the club emblem, color, name, motto, and assignment reason. When earned, the secondary archetype appears on the right with a central divider. Clubs are computed per review: optional Neon tracking stores pseudonymous assignments to calculate participant percentages; see the community setup guide.
-
-## Community database setup
-
-The database is optional for reviews, slides and exports. It enables community primary-club percentages after one participant. Demos are never recorded; failed tracking does not block the review. Aggregates cache for one minute.
-
-- Fresh playstyle database: run `scripts/sql/club-community.sql`.
-- Existing playstyle database: run `scripts/sql/club-community-v13.sql`. It directly upgrades earlier schemas and retains existing rows.
-- Mapping community: additionally run `scripts/sql/mapping-community.sql` in the same database and branch. It creates `wrapped_mapping_club_assignments` independently of `wrapped_club_assignments`.
-- Superseded migrations have been removed. The v13 upgrade includes all earlier playstyle club IDs; no intermediate migrations are required.
-- Standalone Functions variables: `DATABASE_URL`, `CLUB_TRACKING_SECRET`.
-- Website Functions variables: `WRAPPED_DATABASE_URL`, `WRAPPED_CLUB_TRACKING_SECRET`.
-
-Playstyle assignments count once per participant/year/mode under `2026-v27`. Mapping assignments count once per mapper/year across modes under `mapping-2026-v1`. Only current-rule assignments enter percentages; returning users refresh existing records. Keep the secret stable. Neither table stores raw osu! IDs, usernames, tokens, full reviews, or replay files. See [community setup](docs/CLUB-COMMUNITY.md).
-
-## Evidence and ranking
-
-All 26 playstyle clubs can be primary or secondary. Strongest evidence-adjusted signal wins, followed by the next distinct match. Exact ties use supporting coverage, then definition order. Score evidence uses `0.5 + 0.5 * min(evidenceScores / 20, 1)`; accuracy uses valid passed scores. Activity evidence uses `0.75 + 0.25 * min(availableMonths / 6, 1)`, using replay-history months for Replay Society. One eligible score remains enough; fewer than 20 scores receive a provisional note. These are design weights, not probabilities. See [ranking guide](docs/CLUB-RANKING.md).
-
-## Personal mapping and recap
-
-Hosted mapsets first submitted in 2026 (UTC) are counted across all modes, deduplicated by set ID. The service paginates ranked, loved, pending and graveyard catalogues with a 15-minute cache. Guest difficulties hosted by others, deleted sets and unsubmitted maps are excluded. Ranked status is current. Missing/incomplete data is unavailable rather than zero.
-
-The panel shows submissions, their currently ranked subset, combined all-time plays, a mapping club, and the most-played upload. Club criteria and matching accent colors appear on the badge; a button opens the themed legend. Community share appears on the right on desktop and stacks on mobile. The legend shows scope, then the primary community summary, then all six clubs.
-
-The mapping slide follows the playstyle reveal and precedes global community statistics. It plays the most-played upload's complete audio preview. The recap shows three counters, then a divided row with club logo/name/motto/criteria and the most-played upload's cover/title/artist/playcount. Both slide and recap are omitted without a valid positive 2026 submission count, including unavailable data; no extra recap space is reserved. Zero counts can still appear on the dashboard.
-
-## Demo data
-
-Each mode includes real public metadata for ten native-mode mapsets from at least ten distinct hosts, including artwork and previews. Scores, PP, dates, activity, mapping totals and medal award dates remain fictional and labeled. Silver S/SS grades require HD or FL. The example medal displays a dated Osekai ownership snapshot. Demo community tracking is disabled. Refresh fixtures with `node scripts/update-demo-beatmaps.mjs` using local app credentials; no runtime credentials are needed for demos.
-
-### Mapping clubs
-
-Mapping clubs have separate assignments and community percentages from playstyle clubs. The mapping panel includes a six-club legend; the mapping slide and recap feature the first qualifying club in this order:
-
-1. Crowd Pleasers: at least 100,000 combined lifetime plays on 2026 submissions.
-2. Ranked & Recognized: at least 3 currently ranked 2026 submissions.
-3. Ranked Debut: at least 1 currently ranked 2026 submission, regardless of earlier ranked mapsets.
-4. Pattern Factory: at least 10 mapsets submitted in 2026.
-5. Hidden Gems: at least 5 submissions, none currently ranked.
-6. First Draft Society: at least 1 submission in 2026, regardless of earlier mapping history.
-
-All qualifying clubs are marked in the legend. First Draft Society covers every eligible mapper not assigned a higher-priority club. Statistics cover hosted mapsets first submitted in 2026 (UTC), across all modes. Multi-Mode Architects is excluded. Community tracking setup is described below.
-
-### Mapping club community tracking
-
-Run `scripts/sql/mapping-community.sql` in the Neon SQL Editor before deploying. This creates a separate table and leaves existing playstyle data intact. Reuse the existing private database and tracking-secret variables: `DATABASE_URL` / `CLUB_TRACKING_SECRET` for the standalone app, or `WRAPPED_DATABASE_URL` / `WRAPPED_CLUB_TRACKING_SECRET` for the website integration. No new secrets are required.
-
-Authenticated Wrapped requests register one primary mapping club per mapper per year, across all modes. Only users with an eligible 2026 upload qualify; demos and unavailable mapping data are excluded. Revisiting updates an existing assignment. Percentages describe participating mappers, not all osu! users, and appear after one participant. Aggregates cache for one minute. Tracking stores a domain-separated HMAC key, year, all-mode scope, club ID, rule version and timestamps; no raw user IDs or usernames. Missing database configuration disables tracking; database failures leave Wrapped usable. Keep the tracking secret stable to avoid duplicate participant keys. Mapping ranking changes require a new mapping rules version.
-
-### Replay Society
-
-Replay Society - "Your plays deserve another look." Requires at least 500 views received on the user's replays in available 2026 monthly profile history (all modes). This measures views by others, not replays the user watched, and not unique viewers. Source: https://osu.ppy.sh/docs/ (UserStatistics.replays_watched_by_others); monthly history uses replays_watched_counts.
-
-500 per year is a provisional, deliberately substantial design threshold (about 42 per month over a full year), not a verified percentile or population average. No reliable population distribution was available during implementation. Base strength is 55 + 25 * clamp(log10(views / 500) / 2, 0, 1): 55 at 500, 67.5 at 5,000, 80 at 50,000+. Apply the same activity confidence multiplier as other activity clubs: 0.75 + 0.25 * min(available replay-history months / 6, 1). No annualization of partial-year data; missing or invalid history cannot qualify. It can be a primary or secondary trait.
-
-Playstyle assignment rules are `2026-v27`. Replay Society uses the existing playstyle community table and v13 migration; mapping tracking remains independent.
-
-## Mapping-only Wrapped
-
-Users with no eligible 2026 scores in the selected mode can still participate when they have at least one hosted mapset first submitted in 2026 across all modes. Their dashboard focuses on uploads, mapping club and mapping community percentages. The slideshow includes the opening, personal mapping slide with preview, community section and finale; it skips personal score, mod, accuracy, favorite mapper/artist, quizzes and playstyle club slides. The dedicated compact recap includes upload counters, mapping club and most-played upload, with no empty score sections. Save/share/JSON and first-login playback remain available. Users with neither eligible scores nor uploads remain blocked; unavailable mapping data does not grant eligibility. No SQL changes are required.
-
-## Mobile presentation
-
-Link arrows request Unicode text presentation to avoid iOS emoji substitution. The decorative landing-page asterisk uses SVG. Mobile quiz answer labels shrink from 15px toward 11px to fit approximately three lines; exceptionally long names can increase button height instead of overflowing. Fitting updates when the stage resizes or fonts finish loading. All-Rounder uses the same left-aligned legend layout as other clubs at widths up to 600px; its desktop card remains centered.
-
-The footer displays the app version directly from its package.json, so version bumps automatically update the visible indicator.
-
-## Console Easter egg
-
-Running `secret()` in the browser console plays the bundled `wysi.mp3` clip and rains down pointing emojis and 727 text. The command returns `WYSI!`; page load and activation also display playful console messages. The credits panel attributes the Easter egg to Aireu.
-
-The effect uses cached canvas sprites, a 30 FPS cap and at most 40 particles (12 with reduced motion). It ignores pointer input so the page stays usable. Audio ending or the 30-second safety limit triggers a 0.8-second fade before cleanup. Escape or hiding the tab stops it immediately; invoking the command again restarts it without stacking effects. Browser autoplay rules may require clicking the page before running the command. Reduced-motion settings reduce density, size variation and speed.
-
-The console easter egg uses the browser top layer above panels and the slideshow. A playing slideshow pauses until the effect finishes fading or is dismissed; an already paused slideshow stays paused. Re-running the effect keeps the slideshow paused until the replacement finishes. Escape dismisses the effect without closing the underlying panel.
-
-Sources: `src/secret.js` in the standalone app and `osu-wrapped/src/secret.js` in the website copy. Audio: `public/sounds/wysi.mp3` (standalone) and `osu-wrapped/sounds/wysi.mp3` (website). No new environment variables, external services, or SQL changes are needed. The footer version badge reads the app's package version automatically.
-
-## Average beatmap statistics
-
-The personal dashboard includes unweighted mean star rating, total map duration (including breaks), BPM, AR, OD, CS/key count, and HP across all deduplicated eligible 2026 scores in the current top 200. Each metric shows base and mod-adjusted values with independent coverage counts. Missing or unsupported values are excluded, never replaced with zero. AR appears only for standard/catch, OD is omitted for catch, CS is omitted for taiko, and mania displays key count instead of circle size. Mapping-only users do not receive score averages.
-
-Supported fixed-rate DT/NC/HT/DC settings adjust BPM and duration. HR/EZ and Difficulty Adjust modify supported difficulty settings; standard OD and standard/catch AR include rate effects. Current mod-specific star ratings and available AR/OD attributes come from the official difficulty-attributes endpoint. No historical difficulty reconstruction is claimed. Variable-rate or unsupported mod settings can reduce adjusted coverage. Base and adjusted averages may cover different score subsets.
-
-Attribute enrichment is server-side, with four concurrent requests, a 3.5-second request budget, at most 24 uncached beatmap/mode/mod combinations per review, shared in-flight requests, and a 24-hour warm-instance success cache. Failures briefly cache and keep required attribute checks pending; rate limiting stops further lookups in that batch. Subsequent loading batches continue until those checks finish. Shared persistence uses the queue migration described below; no new secrets are required. The demo includes real base difficulty/length metadata and cached official HD/DT attributes for its existing maps; demo scores and profile activity remain fictional. Missing values in live reviews display an em dash (-).
-
-Beatmap averages also appear in a dedicated personal slideshow slide and a compact recap card grid. Metric coverage labels show the number of included scores. Mapping-only reviews omit these score-based sections.
-
-## Recap card layouts and sharing
-
-Recap cards support portrait and landscape PNG exports, including mapping-only reviews. Dashboard Save recap card and Share actions open a preview panel with a portrait/landscape choice. Click the preview to expand it with zoom-in/out, fit reset, mouse-wheel zoom, dragging, double-click zoom, keyboard controls, and touch pinch/pan. Close the viewer to return to the chooser. Clicking outside the Share or Save panel closes it; clicks and drags inside do not.
-
-The finale has arrow controls to switch its preview between formats. Its Save and Share actions start with the selected format, and both panels allow changing it again. Cached previews are reused within each open panel; image actions wait for the selected card to finish rendering.
-
-The finale reserves a fixed preview area, keeps the current image visible while the next variant loads, and crossfades after decoding. Switching formats keeps the heading, buttons, and decorative heart in place. The format arrows and label animate to sit beneath the visible card. Reduced-motion skips these transitions.
-
-Landscape cards share the portrait design details: pink header glow and playcount tile, accuracy grade, source descriptors, month accent, mod artwork, framed primary/secondary club logos and reasons, shaded score-grade overlays, mapper/artist portraits with fallbacks, medal metadata, and an aligned mapping club/upload showcase. Both layouts use compact spacing and aligned PP, accuracy/combo, and date rows. The landscape footer includes a SCORE COVERAGE heading and a right-aligned fan-project credit. Single-club landscape panels use an enlarged, left-aligned primary trait; unpaired average-beatmap metrics are centered on the mobile stats page.
-
-## Slideshow audio controls
-
-Hover over the speaker button or focus/tap it to reveal a volume slider aligned beneath the control-button group. It adjusts music and sound effects together while preserving their relative levels, including quiz sounds and fades. Click-to-mute remains available; unmuting restores the last nonzero volume.
-
-## Top-play combos and presentation
-
-Personal and global top-play lists show accuracy and combo together, such as `99.55% · 418×`, on stats pages and slides. Portrait and landscape recap cards also include personal play combos. Combo text matches the accuracy typography. Confirmed full combos use lime green without a visible FC suffix; light slides use a darker green for contrast, while featured personal/global score slides retain lime green over their artwork. Full-combo status follows explicit API flags, not accuracy or rank; missing combo data remains unavailable.
-
-The global dashboard top-play list matches personal-list typography. Global PP/accuracy/combo and popular-map play counts are centered above their respective Watch buttons.
-
-Counter ticks use a predecoded low-latency Web Audio sample with leading-silence trimming, short fade envelopes, bounded overlapping voices, and tick-rate limiting. Suspended mobile audio never queues stale ticks; the fallback reuses idle preloaded players instead of cutting off a playing sample. Pause, mute, volume changes, slide navigation, and closure stop or update the counter audio appropriately.
-
-### Artist Loyalists
-
-Artist Loyalists ("You know who makes your favorite songs.") mirrors Mapper Loyalists: at least 25% of selected scores must feature one artist, with at least three matching scores across two distinct mapsets. Artist credits are compared case-insensitively with whitespace normalized; collaborations remain the credited artist string rather than being split. Base strength ranges from 55 at 25% to 80 at 100%, with the normal score-evidence adjustment. It can be primary or secondary and appears throughout the dashboard, legend, slideshow and recap cards.
-
-Before deployment, run `scripts/sql/club-community-v13.sql` in the existing Neon database to allow the new club ID. No rows are deleted or new environment variables required. Returning participants refresh to assignment rules `2026-v27` when they revisit; percentages include current-rule assignments.
-
-### One-Map Wonders
-
-"Different difficulties. Same obsession." At least 25% of selected scores must come from one mapset, spanning at least three confirmed distinct beatmap difficulties. Multiple scores or mod combinations on the same difficulty do not satisfy the three-difficulty requirement. Base strength is 55-80, with the standard sample-size adjustment; eligible as primary or secondary. The legend places it beside the loyalty clubs. Existing Neon databases must run `scripts/sql/club-community-v13.sql` before deployment; existing rows are preserved. Assignment rules are `2026-v27`. No new environment variables are needed.
-
-### Map-length clubs
-
-Short & Sweet ("Straight to the good part.") requires at least 60% of selected scores on maps no longer than 1:30. Long Haul Club ("You’re here for the whole song.") requires at least 60% on maps at least 3:30 long. Both require five selected scores and use mod-adjusted total length including breaks. Missing or invalid lengths never count toward either club; percentages use the entire selected sample. TV-size/full-size titles are not inferred. Both have base strength 55-80 with standard score evidence weighting and can be primary or secondary. All-Rounder remains last in the legend.
-
-Existing Neon databases must apply `scripts/sql/club-community-v13.sql` before deployment. This cumulative migration includes the earlier loyalty and mapset clubs, preserves participant records, and requires no new environment variables. Rules version: `2026-v27`.
-
-### Modded Only
-
-"Vanilla was never on the menu." Requires zero No Mod plays across all selected scores: every selected score must use at least one gameplay mod. CL is excluded, so CL-only scores count as No Mod. One selected score remains eligible; the normal score-evidence adjustment applies to the fixed base strength of 60. It can be primary or secondary and appears throughout the dashboard, legend, slideshow and recap cards. Existing Neon databases must run `scripts/sql/club-community-v13.sql` before deployment; this cumulative migration includes all previous clubs and preserves existing records. Assignment rules: `2026-v27`.
-
-### Release countdown and admin early access
-
-Until November 29, 2026 at 00:00 UTC, viewers see a live days/hours/minutes/seconds countdown. A subtle "If you’re an admin, login here." link starts the existing osu! OAuth flow. Early access is restricted server-side to the permanent owner (osu! account ID 7933825, ronaldonater) and users on the owner-managed allowlist, matched by numeric identity rather than a user-supplied name. Accounts outside the allowlist return to the countdown without receiving an early-access session. Existing sessions are verified against osu! before granting access. Review, global, replay, and image API routes are blocked for non-admins before release; release-status and admin responses are not cached. The frontend only imports the interactive app after the server allows access. Public access opens automatically at the UTC deadline, using server time for the countdown. If the status service is unavailable, the page remains locked and retries. OAuth credentials are unchanged; no new environment variables or SQL are needed for the countdown. Use the full local Netlify server for testing; Vite alone does not provide the release-status endpoint.
-
-### Owner-managed early-access admins
-
-The navbar shows an Admin button only for ronaldonater (verified osu! account 7933825). The panel adds users by osu! username or numeric ID and removes existing entries; only the owner may list or mutate the allowlist. Added admins get pre-release access, not permission to manage other admins. IDs are resolved through osu! and stored server-side; names are display labels. Owner access is permanent and cannot be removed. Access checks read the allowlist without a permissions cache, so removals apply on the next server request, including existing signed-in sessions. Already downloaded content is not erased. The panel refreshes its list every ten seconds while open and visible.
-
-Run `scripts/sql/admin-allowlist.sql` once in Neon before deploying admin management. It creates a separate `wrapped_release_admins` table with RLS enabled and does not change club tables. Reuse the existing private `DATABASE_URL` (standalone) or `WRAPPED_DATABASE_URL` (website); no new environment variables are needed. Missing/unavailable admin storage denies additional-user early access while the permanent owner remains able to sign in. At release, public access opens normally; the admin-management endpoint remains owner-only. Mutations require POST, a matching Origin, and an authenticated owner session. Sign out reloads the release gate.
-
-The Admin navbar button is pre-release only. It is hidden once the release becomes public, and an already-open admin panel closes automatically at the server-derived release deadline without reloading. The underlying management endpoint remains authenticated and owner-only.
-
-## Community skillset tags
-
-The stats page ranks all available community skillset tags from the exact difficulties in selected 2026 scores. Five entries are initially visible; additional entries are accessible through a themed, keyboard-focusable scrolling list. A conditional skillset slide and both recap card formats show the top five when tags are available. Alternate is displayed as Alt. The slide includes a decorative pie chart icon. Each skillset counts once per selected score; percentages use all selected scores and can overlap. Coverage shows how many scores were checked and tagged. These describe map patterns, not measured player proficiency. Ordinary mapper tags are not used as substitutes.
-
-Tag enrichment uses the osu! beatmapset API with at most 24 uncached mapsets per review, four concurrent requests, a four-second request budget, and a six-hour in-memory success cache. Difficulties with no tags count as successfully checked. Failed tag lookups keep the profile hidden until a retry completes coverage. Cancelled tag batches are not negatively cached, allowing the next batch to continue. No database migration or new environment variables are needed.
-
-### Easy Tempo and expanded mod families
-
-Easy Tempo: "Good music deserves a little more time." HT or DC must appear on at least 40% of selected scores. Its base strength grows from 40 to 55 with the qualifying share, followed by the normal score-evidence adjustment. It can be primary or secondary, uses its own colour and rewind-style icon, and appears in the legend, dashboard, slides, recap cards, and community percentages. Each score contributes once even if multiple mods from the same family are reported.
-
-Afterdark retains its 50% threshold and includes HD/FL across supported modes plus FI/CO in osu!mania. One Shot Society retains its 40% threshold and now includes AC alongside SD/PF. These mod families retain their 40-55 base strength range.
-
-Existing Neon databases must run `scripts/sql/club-community-v13.sql` before deploying Easy Tempo. The migration extends the allowed club IDs without deleting participant rows. Fresh installations use `scripts/sql/club-community.sql`. Assignments use `2026-v27`; returning participants update their existing records. No additional environment variables are required.
-
-## osu! API request budget
-
-Before deploying API throttling, run `scripts/sql/api-budget.sql` in the existing Neon database. This creates a separate RLS-enabled budget table and does not modify club records. The existing database URL and osu! client ID are reused. If Neon is unavailable, API requests continue with local request pacing and a 60-second database retry backoff. Cross-instance coordination resumes when the database recovers; it cannot be guaranteed during an outage. Community percentages show as temporarily unavailable and do not block Wrapped. All other required review data must still finish loading.
-
-Runtime osu! API and OAuth requests share request-start pacing of at least 1.1 seconds. With Neon configured, an atomic database admission check coordinates separate Netlify instances using the same client ID and database. HTTP 429 responses trigger a cooldown using Retry-After (60 seconds if missing), propagated through the shared budget. Requests cancelled before admission never contact osu!. There are no automatic upstream retries.
-
-Exact beatmapset lookups share six-hour in-memory cached responses bounded to 128 entries / 32 MiB and coalesce concurrent requests, so ranked-date and skillset enrichment reuse one upstream lookup. Existing enrichment deadlines remain in place; unfinished required enrichment batches continue through the loading screen rather than issuing a burst. Core profile loads may wait longer under load. Asset/CDN images and third-party APIs are outside this osu! API budget.
-
-Without a database, pacing is local to each warm function instance and does not guarantee a shared deployment-wide limit. Local caches do not persist across cold starts. Other applications and the separately scheduled catalogue refresh are not covered by the runtime budget; their traffic must also be considered when sharing an osu! OAuth client.
-
-## Complete-data loading
-
-Wrapped remains hidden until profile and score data, exact-difficulty user-tag checks, required enrichment services, global statistics, and artwork preparation have completed. Community percentages may be temporarily unavailable without blocking the review. Loading progress retains the profile/scores, user tags, additional details, and artwork stages. Transient failures automatically retry with bounded exponential backoff and Retry-After cooldowns; there is no manual retry button or partial-profile fallback. Permanent authentication failures stop loading and require signing in again.
-
-Successfully checked maps without tags, unsupported attributes confirmed by the API, absent medal metadata in a successfully retrieved snapshot, and existing image fallbacks are completed results rather than pending requests. Failed required services keep the loading screen visible; community-percentage failures do not. Completed mapping catalogue pages and cancelled enrichment batches can be reused by subsequent attempts. The persistent queue also requires `scripts/sql/review-queue.sql`; it reuses the existing database and session-secret variables.
-
-
-## Persistent profile queue and shared cache
-
-**Before deploying, run `scripts/sql/review-queue.sql` in the Neon SQL Editor**, in the same database as `api-budget.sql`. Run it once per database; the script is safe to rerun and leaves club/admin tables unchanged. No new secrets are needed: standalone uses `DATABASE_URL`, `SESSION_SECRET`, and `OSU_CLIENT_ID`; the integrated website uses `WRAPPED_DATABASE_URL`, `WRAPPED_SESSION_SECRET`, and `WRAPPED_OSU_CLIENT_ID`.
-
-With a database configured, authenticated profile requests join one durable job per user and game mode. The database admits one active job per osu! client budget, with a separate 60-second work lock preventing duplicate tabs or server instances from processing the same batch. Queue position appears on the loading screen; polling slows from 10 to 30 seconds farther back in the queue. Long jobs yield between batches after 90 seconds when others are waiting. Abandoned jobs stop holding the slot after two minutes without a heartbeat, once their work lock has expired. Processing resumes as browsers poll; this is not an unattended background worker.
-
-Successful osu! JSON responses are encrypted using a key derived from the existing session secret, so completed batches survive refreshes and server-instance changes. Public mapset metadata and difficulty attributes can be reused across users; personal profile/score/mapping responses use token-isolated hashed cache keys. OAuth exchanges, replay downloads, and failed responses are not cached. Tokens are not stored in queue records or cache payloads. Completed reviews expire after 15 minutes, profile/score responses after five minutes, mapping pages after 15 minutes, mapset responses after six hours, and attributes after 24 hours. Expired data is ignored immediately and physically removed incrementally by subsequent queue activity; cleanup is not a separate scheduled task. Browser-facing responses remain private/no-store.
-
-The existing global API pacing and HTTP 429 cooldowns still apply. If Neon or the queue schema is unavailable, profile requests fall back to the previous staged loader with local API pacing and 429 cooldowns. Queue storage is checked again after a short backoff, and shared caching backs off for 60 seconds on database errors. Global queue admission and cross-instance request coordination cannot be guaranteed during this fallback. Failure to save queue progress does not discard an otherwise completed review. Authentication and release restrictions remain unchanged. Community-only failures remain nonblocking. Without any database configured, local development retains its original unqueued behavior and the demo works normally. Queue admission does not bypass the release gate or authentication. No profile is displayed before the required data and artwork preparation finish.
-
-
-## Instant saved demo
-
-The demo profile, skillset tags, global rankings, popular mapsets, genre totals, and average-beatmap values for all four modes are bundled in `demo-snapshot.json`, captured on October 29, 2026 (UTC). Demo opening, mode changes, the global dashboard, and slideshow startup do not call the profile API, enter the queue, wait for Neon, or wait for artist/mod image preloading. The demo uses saved beatmap-cover fallbacks instead of live TheAudioDB lookups. Images and audio still load normally as media; optional replay/viewer actions and recap image exports can request their media separately. Demo scores, profile activity, and mapping totals remain fictional; real map metadata and global rankings are dated snapshot data. Each call returns a fresh copy so preview edits cannot alter the bundled snapshot.
-
-To intentionally refresh the snapshot, run `node scripts/snapshot-demo.mjs` locally with the existing osu! app credentials available. It uses paced public API lookups, saves only completed snapshots, and never writes access tokens or credentials to the output. It is not run for visitors or as part of the deployment build. Existing demo-map/attribute refresh scripts update the source fixtures; run the snapshot command afterward to publish those changes into the saved demo.
-
-
-Demo artwork is also bundled locally: `demo-images.json` maps the frozen snapshot's remote image references to saved covers, mapper/player avatars, and medal artwork. Dashboard, slideshow, and both recap layouts use these static assets for demo data. Live profiles also reuse exact matching beatmap backgrounds as described below; their avatars and medal images retain their existing paths. Mod icons and the OhnePixel thumbnail were already bundled. Audio previews remain streamed. To recapture images after changing the demo snapshot, run `node scripts/snapshot-demo-images.mjs` and commit the generated manifest and image directory. Missing images use a bundled placeholder rather than a visitor-time external lookup.
-
-
-Live reviews also reuse bundled demo beatmap backgrounds when the full osu! cover URL matches a successfully saved image exactly. This applies to profile/global covers, slideshow artwork, beatmap-cover fallbacks, mapping showcases, and recap exports. Unmatched URLs retain their normal loading path. Avatars, artist portraits, and medal images are not reused from the demo for live profiles. This avoids image downloads/proxy calls, not score/tag/attribute API requests. Saved artwork stays frozen until recaptured; a changed cover URL automatically uses the normal live path.
+The in-app **Credits & Thanks** panel contains the full attributions and special thanks; its source is [src/credits.js](src/credits.js). An independent fan project, not affiliated with ppy or osu!. All assets remain the property of their respective owners.
