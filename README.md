@@ -1,6 +1,6 @@
 # osu! Wrapped 2026
 
-**Version 1.1.43** | [Changelog](CHANGELOG.md) | [Detailed guide](docs/FEATURE-GUIDE.md)
+**Version 1.1.44** | [Changelog](CHANGELOG.md) | [Detailed guide](docs/FEATURE-GUIDE.md)
 
 An independent fan app that turns your osu! profile into a 2026 review, an interactive slideshow, and shareable recap cards. Supports osu!, osu!taiko, osu!catch, and osu!mania.
 
