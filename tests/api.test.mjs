@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {handler} from '../netlify/functions/lib/api-handler.mjs';
+import {handler as appHandler} from '../netlify/functions/lib/api-handler.mjs';
+const handler=event=>appHandler(event,{now:()=>Date.parse('2026-12-01T00:00:00Z')});
 import {seal} from '../netlify/functions/lib/security.mjs';
 process.env.SESSION_SECRET='test-session-secret-at-least-32-characters';
 const event=(path,extra={})=>({path,headers:{},httpMethod:'GET',...extra});
