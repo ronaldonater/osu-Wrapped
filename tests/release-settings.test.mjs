@@ -33,6 +33,8 @@ test('countdown mutations require the permanent owner, correct origin, and valid
   assert.equal((await request('/api/admin/release','POST',99,'open')).statusCode,403);
   assert.equal((await request('/api/admin/release','POST',7933825,'open','https://evil.test')).statusCode,403);
   assert.equal((await request('/api/admin/release','POST',7933825,'bad')).statusCode,400);assert.equal(writes,0);
+  const redirect=process.env.OSU_REDIRECT_URI;delete process.env.OSU_REDIRECT_URI;
+  try{const failure=await request('/api/admin/release','POST',7933825,'open');assert.equal(failure.statusCode,503);assert.match(JSON.parse(failure.body).error,/Countdown controls/);}finally{process.env.OSU_REDIRECT_URI=redirect;}
   assert.equal((await request('/api/wrapped')).statusCode,423);
   assert.equal((await request('/api/admin/release','POST',7933825,'open')).statusCode,200);
   assert.equal(JSON.parse((await request('/api/release')).body).allowed,true);
@@ -40,5 +42,7 @@ test('countdown mutations require the permanent owner, correct origin, and valid
   assert.equal((await request('/api/admin/release','POST',7933825,'restore')).statusCode,200);
   assert.equal(JSON.parse((await request('/api/release')).body).allowed,false);
   assert.equal((await request('/api/wrapped')).statusCode,423);assert.equal(writes,2);
+  releaseSettings.set=async()=>{throw Error('unexpected storage failure');};
+  const failure=await request('/api/admin/release','POST',7933825,'open');assert.equal(failure.statusCode,503);assert.match(JSON.parse(failure.body).error,/countdown settings/);assert.ok(!failure.body.includes('generate your Wrapped'));
  }finally{releaseSettings.status=originalStatus;releaseSettings.set=originalSet;}
 });
