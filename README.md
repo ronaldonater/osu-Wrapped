@@ -1,6 +1,6 @@
 # osu! Wrapped 2026
 
-**Version 1.1.46** | [Changelog](CHANGELOG.md) | [Detailed guide](docs/FEATURE-GUIDE.md)
+**Version 1.1.47** | [Changelog](CHANGELOG.md) | [Detailed guide](docs/FEATURE-GUIDE.md)
 
 An independent fan app that turns your osu! profile into a 2026 review, an interactive slideshow, and shareable recap cards. Supports osu!, osu!taiko, osu!catch, and osu!mania.
 
@@ -11,7 +11,7 @@ An independent fan app that turns your osu! profile into a 2026 review, an inter
 - Personal mapping statistics and mapping-only Wrapped for eligible uploaders without eligible scores.
 - Global score, popular-map, mod, genre, and mapper rankings with replay and beatmap viewers.
 - Animated, music-backed slideshow and portrait/landscape recap cards with sharing, image zoom, downloads, and JSON export.
-- A bundled demo for all four modes, with saved statistics and bundled artwork. Demo data opens without OAuth, Neon, or the profile queue; song previews still stream.
+- A bundled demo for all four modes, with saved statistics and bundled artwork. Demo data opens without OAuth, Neon, or the profile queue; slideshow song previews are bundled too.
 - Persistent profile queuing, resumable loading, shared encrypted caching, and automatic retries when Neon is configured.
 
 ## Run locally
