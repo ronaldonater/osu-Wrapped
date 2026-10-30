@@ -1,6 +1,6 @@
 # osu! Wrapped 2026
 
-**Version 1.1.44** | [Changelog](CHANGELOG.md) | [Detailed guide](docs/FEATURE-GUIDE.md)
+**Version 1.1.45** | [Changelog](CHANGELOG.md) | [Detailed guide](docs/FEATURE-GUIDE.md)
 
 An independent fan app that turns your osu! profile into a 2026 review, an interactive slideshow, and shareable recap cards. Supports osu!, osu!taiko, osu!catch, and osu!mania.
 
@@ -11,7 +11,7 @@ An independent fan app that turns your osu! profile into a 2026 review, an inter
 - Personal mapping statistics and mapping-only Wrapped for eligible uploaders without eligible scores.
 - Global score, popular-map, mod, genre, and mapper rankings with replay and beatmap viewers.
 - Animated, music-backed slideshow and portrait/landscape recap cards with sharing, image zoom, downloads, and JSON export.
-- A bundled demo for all four modes, with saved statistics and 336 image references. Demo data opens without OAuth, Neon, or the profile queue; song previews still stream.
+- A bundled demo for all four modes, with saved statistics and bundled artwork. Demo data opens without OAuth, Neon, or the profile queue; song previews still stream.
 - Persistent profile queuing, resumable loading, shared encrypted caching, and automatic retries when Neon is configured.
 
 ## Run locally
@@ -84,3 +84,5 @@ Demo refresh scripts, ranked-catalogue updates, source layout, audio behavior, a
 Data and assets come from osu! / ppy, beatmap creators, Osekai, and TheAudioDB. Music and sound credits include cYsmix, nekodex, pola[r]is, and Aireu. ReplayViewer and JoSu provide embedded viewers.
 
 The in-app **Credits & Thanks** panel contains the full attributions and special thanks; its source is [src/credits.js](src/credits.js). An independent fan project, not affiliated with ppy or osu!. All assets remain the property of their respective owners.
+
+For the daily catalogue workflow, set the GitHub Actions repository secret `DATABASE_URL` to the live app's existing Neon connection string, alongside its existing osu! OAuth secrets. Rerun [api-budget.sql](scripts/sql/api-budget.sql) before deploying the shared player/snapshot scheduler. See the [feature guide](docs/FEATURE-GUIDE.md#shared-budget-for-daily-catalogue-refreshes).
