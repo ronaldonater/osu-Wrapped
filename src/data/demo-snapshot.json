@@ -2237,7 +2237,13 @@
         "demoSnapshot": true,
         "snapshotAt": "2026-10-29T06:18:09.510Z"
       },
-      "skillsetsSnapshotAt": "2026-10-30T19:26:27.069Z"
+      "skillsetsSnapshotAt": "2026-10-30T19:26:27.069Z",
+      "uniqueCounts": {
+        "mappers": 10,
+        "artists": 10,
+        "beatmaps": 10,
+        "mapsets": 10
+      }
     },
     "taiko": {
       "skillsets": {
@@ -4195,7 +4201,13 @@
         "demoSnapshot": true,
         "snapshotAt": "2026-10-29T06:18:09.510Z"
       },
-      "skillsetsSnapshotAt": "2026-10-30T19:26:27.069Z"
+      "skillsetsSnapshotAt": "2026-10-30T19:26:27.069Z",
+      "uniqueCounts": {
+        "mappers": 10,
+        "artists": 10,
+        "beatmaps": 10,
+        "mapsets": 10
+      }
     },
     "fruits": {
       "skillsets": {
@@ -6144,7 +6156,13 @@
         "demoSnapshot": true,
         "snapshotAt": "2026-10-29T06:18:09.510Z"
       },
-      "skillsetsSnapshotAt": "2026-10-30T19:26:27.069Z"
+      "skillsetsSnapshotAt": "2026-10-30T19:26:27.069Z",
+      "uniqueCounts": {
+        "mappers": 10,
+        "artists": 10,
+        "beatmaps": 10,
+        "mapsets": 10
+      }
     },
     "mania": {
       "skillsets": {
@@ -8185,7 +8203,13 @@
         "demoSnapshot": true,
         "snapshotAt": "2026-10-29T06:18:09.510Z"
       },
-      "skillsetsSnapshotAt": "2026-10-30T19:26:27.069Z"
+      "skillsetsSnapshotAt": "2026-10-30T19:26:27.069Z",
+      "uniqueCounts": {
+        "mappers": 10,
+        "artists": 10,
+        "beatmaps": 10,
+        "mapsets": 10
+      }
     }
   }
 }
