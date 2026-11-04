@@ -6,7 +6,7 @@ An independent fan app that turns your osu! profile into a 2026 review, an inter
 
 ## Features
 
-- Personal activity, top plays, mods, mappers, artists, medals, average beatmap statistics, and community-tagged skillsets.
+- Personal activity, top plays, mods, mappers, artists, medals, average beatmap statistics, and community-tagged skillsets. Favorite mapper/artist score counts open matching beatmap panels; tied rankings use the highest associated PP play.
 - Playstyle and mapping clubs with explanations, primary/secondary traits, and optional community percentages.
 - Personal mapping statistics and mapping-only Wrapped for eligible uploaders without eligible scores.
 - Global score, popular-map, mod, genre, and mapper rankings with replay and beatmap viewers.
@@ -81,7 +81,10 @@ Demo refresh scripts, ranked-catalogue updates, source layout, audio behavior, a
 
 ## Credits
 
-Data and assets come from osu! / ppy, beatmap creators, Osekai, and TheAudioDB. Music and sound credits include cYsmix, nekodex, pola[r]is, and Aireu. ReplayViewer and JoSu provide embedded viewers.
+Data and assets come from osu! / ppy, beatmap creators, Osekai, and TheAudioDB.
+
+Artist portraits use TheAudioDB where available, with beatmap artwork as a fallback. TheAudioDB images may not match the intended artist; the stats page, artist slide, recap cards, FAQ, and credits explain this limitation. Recap credit text scales down as needed to fit on one line.
+ Music and sound credits include cYsmix, nekodex, pola[r]is, and Aireu. ReplayViewer and JoSu provide embedded viewers.
 
 The in-app **Credits & Thanks** panel contains the full attributions and special thanks; its source is [src/credits.js](src/credits.js). An independent fan project, not affiliated with ppy or osu!. All assets remain the property of their respective owners.
 
